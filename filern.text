@@ -1,0 +1,520 @@
+
+
+#!/usr/bin/env node
+// mwala.js
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { getDbConnection } from '../config/createdatabase.js';
+import {createTable,dropTable,migrateAll} from '../runMigrations.js';
+const args = process.argv.slice(2);
+const command = args[0];
+
+// Helper functions
+const createDirectories = (dirs) => {
+  dirs.forEach(dir => {
+    const dirPath = path.join(process.cwd(), 'src', dir);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  });
+};
+
+const createFile = (filePath, content) => {
+  const dirPath = path.dirname(filePath);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+  fs.writeFileSync(filePath, content);
+};
+
+// Command Handling
+switch (command) {
+  case 'create':
+    const projectName = args[1];
+    if (!projectName) {
+      console.error('Please provide a project name');
+      process.exit(1);
+    }
+
+    const projectPath = path.join(process.cwd(), projectName);
+    const srcPath = path.join(projectPath, 'src'); 
+
+    if (!fs.existsSync(projectPath)) {
+      fs.mkdirSync(projectPath);
+    }
+
+    createDirectories(['src', 'src/controllers', 'src/models', 'src/routes', 'src/views', 'src/public', 'src/middlewares']);
+
+    const defaultFiles = [
+      { path: 'src/app.js', content: `import mwalajs from 'mwalajs';\nimport { homeRoutes } from './routes/homeRoutes.js';\nimport { fileURLToPath } from 'url';\nimport path from 'path';\nconst __filename = fileURLToPath(import.meta.url);\nconst __dirname = path.dirname(__filename);\nconst app = mwalajs();\napp.set('view engine', 'ejs');\napp.set('views', path.join(__dirname, 'views'));\napp.use((req, res, next) => { app.static(path.join(__dirname, 'public')); next(); });\napp.use('/', homeRoutes);\nconst port = process.env.PORT || 3000;\napp.listen(port, () => { console.log('Server running on port', port); });` },
+      { path: 'src/controllers/homeController.js', content: `export const homeController = { getHomePage: (req, res) => { res.render('index', { title: 'Welcome to MwalaJS MVC' }); } };` },
+      { path: 'src/routes/homeRoutes.js', content: `import mwalajs from 'mwalajs';\nimport { homeController } from '../controllers/homeController.js';\nconst router = mwalajs.Router();\nrouter.get('/', homeController.getHomePage);\nexport { router as homeRoutes };` },
+      { path: 'src/middlewares/middleware.js', content: `import mwalajs from 'mwalajs';\nexport const middleware = (req, res, next) => { next(); };` },
+      { path: 'src/views/index.ejs', content: `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>VIEW PAGE</title>\n  <link rel="stylesheet" href="/styles.css">\n</head>\n<body>\n  <h1>FRONT END PAGE FOR YOUR PROJECT</h1>\n  <p>In MwalaJS Framework, you can add more views like dashboard.ejs based on your requirements.</p>\n</body>\n</html>` },
+      { path: 'src/models/exampleModel.js', content: `export const exampleModel = { getExampleData: () => { return { message: 'This is a model example' }; } };` },
+      { path: 'src/public/styles.css', content: `body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; background-color: #f4f4f4; }\nh1 { color: #333; }` }
+    ];
+
+    defaultFiles.forEach(file => createFile(path.join(projectPath, file.path), file.content));
+
+    console.log(`MVC project "${projectName}" created successfully`);
+    break;
+
+  case 'app.js':
+  case 'serve':
+    execSync('node src/app.js', { stdio: 'inherit' });
+    break;
+
+  case 'generate':
+    const subCommand = args[1];
+    const name = args[2];
+
+    const generateMVCComponent = (subCommand, name) => {
+      const paths = {
+        model: 'models',
+        controller: 'controllers',
+        route: 'routes',
+        view: 'views'
+      };
+      
+      const filePath = path.join(process.cwd(), 'src', paths[subCommand], `${name}.js`);
+      if (fs.existsSync(filePath)) {
+        console.log(`${name} ${subCommand} already exists.`);
+        return;
+      }
+
+      let content = '';
+      if (subCommand === 'model') {
+        content = `export const ${name}Model = { // Define model logic here };`;
+      } else if (subCommand === 'controller') {
+        content = `export const ${name}Controller = { get${name}Page: (req, res) => { res.render('${name}', { title: '${name} Page' }); } };`;
+      } else if (subCommand === 'route') {
+        content = `import mwalajs from 'mwalajs';\nimport { ${name}Controller } from '../controllers/${name}Controller.js';\nconst router = mwalajs.Router();\nrouter.get('/', ${name}Controller.get${name}Page);\nexport { router as ${name}Route };`;
+      } else if (subCommand === 'view') {
+        content = `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>${name} Page</title>\n</head>\n<body>\n  <h1>${name} View Page</h1>\n</body>\n</html>`;
+      }
+
+      createFile(filePath, content);
+      console.log(`${name} ${subCommand} created successfully.`);
+    };
+
+    if (subCommand && name) {
+      generateMVCComponent(subCommand, name);
+    } else {
+      console.log('❌ Please specify both subCommand and name.');
+    }
+    break;
+
+  case 'add':
+    if (args[1] === 'middleware') {
+      const middlewareName = args[2];
+      if (!middlewareName) {
+        console.log('❌ Please provide a middleware name.');
+        break;
+      }
+
+      const middlewarePath = path.join(process.cwd(), 'src', 'middlewares', `${middlewareName}.js`);
+      const content = `export const ${middlewareName} = (req, res, next) => { // Middleware logic here next(); };`;
+      createFile(middlewarePath, content);
+      console.log(`${middlewareName} middleware created successfully.`);
+    }
+    break;
+
+  case 'help':
+  case '?':
+  case 'h':
+    console.log(`
+      Available commands for MwalaJS framework:
+      
+      1. mwala create <appname>           - Create a new MVC project. Example: mwala create myapp
+      2. mwala app.js                     - Run the app.js file to start your application.
+      3. mwala db <command>               - Database commands for various database tasks:
+          - create-database              - Creates a new database.
+          - migrate                      - Run migrations.
+          - rollback                     - Rollback migrations.
+      4. mwala generate <model/controller/route/view> <name> - Generate various MVC components (models, controllers, routes, and views).
+          - Example: mwala generate model user
+          - Example: mwala generate controller userController
+          - Example: mwala generate route userRoute
+          - Example: mwala generate view userView
+      5. mwala add middleware <middlewareName> - Add a middleware to your project. Example: mwala add middleware auth
+      6. mwala serve                       - Start the server (similar to running "mwala app.js" or "node app.js").
+      7. mwala help                        - Show available commands (this command).
+      8. mwala create-table <table_name>    - Create a table in the database. Example: mwala create-table users
+      9. mwala drop-table <table_name>      - Drop a table from the database. Example: mwala drop-table users
+      10. mwala migrate                    - Run migrations on the database. Example: mwala migrate
+      11. mwala rollback                   - Rollback the last migration. Example: mwala rollback
+      
+      For more information, use the command with "help", like:
+          mwala create --help
+          mwala generate model --help
+        `);
+    break;
+
+  case 'db':
+    if (args[1] === 'create-database') {
+      getDbConnection().then(connection => {
+        console.log('Database connection established.');
+      }).catch(err => {
+        console.error(`❌ Failed to create database: ${err.message}`);
+      });
+    }
+    break;
+
+  case 'create-table':
+    if (args.length < 2) {
+      console.error('❌ Please specify a table name. Usage: mwala create-table <table_name>');
+      process.exit(1);
+    }
+    const tableNameToCreate = args[1];
+    createTable(tableNameToCreate);
+    break;
+
+  case 'drop-table':
+    if (args.length < 2) {
+      console.error('❌ Please specify a table name. Usage: mwala drop-table <table_name>');
+      process.exit(1);
+    }
+    const tableNameToDrop = args[1];
+    dropTable(tableNameToDrop);
+    break;
+
+  case 'migrate':
+    if (args[1] === 'all') {
+      migrateAll();
+    } else {
+      console.error('❌ Invalid command. Use: mwala migrate all');
+      process.exit(1);
+    }
+    break;
+
+  default:
+    console.error('❌ Invalid command. Usage: mwala <create-table|drop-table|migrate>');
+    process.exit(1);
+}
+
+
+........................................................................................
+................................................................................
+===============================================================================
+.........................................................................
+............................................................................
+
+#!/usr/bin/env node
+//mwala.js
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { getDbConnection } from '../src/config/createdatabase.js';  
+import { spawnSync } from "child_process";
+const args = process.argv.slice(2);
+const command = args[0];
+const entity = args[1] || "";  // Fix: Prevent undefined values
+import { fileURLToPath } from 'url';
+import { sequelize } from '../db.js';
+
+// Command to create a new MVC project
+if (command === 'create') {
+  const projectName = args[1];
+  if (!projectName) {
+    console.error('Please provide a project name');
+    process.exit(1);
+  }
+
+  const projectPath = path.join(process.cwd(), projectName);
+  const srcPath = path.join(projectPath, 'src'); // Path to src directory
+
+  // Create the project directory if not exists
+  if (!fs.existsSync(projectPath)) {
+    fs.mkdirSync(projectPath);
+  }
+
+  // Create src directory if it doesn't exist
+  if (!fs.existsSync(srcPath)) {
+    fs.mkdirSync(srcPath, { recursive: true });
+  }
+
+  // Create subdirectories for MVC architecture
+  const mvcDirs = ['controllers', 'models', 'routes', 'views', 'public', 'middlewares'];
+  mvcDirs.forEach(dir => {
+    const dirPath = path.join(srcPath, dir);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  });
+
+  // Initialize default project files for MVC structure
+  const defaultFiles = [
+    { path: 'src/app.js', content: `import mwalajs from 'mwalajs';
+import { homeRoutes } from './routes/homeRoutes.js';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Create Mwala app instance
+const app = mwalajs();
+
+// Set view engine and views folder
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Serve static files
+app.use((req, res, next) => {
+  app.static(path.join(__dirname, 'public'));  // Serve static files using the static method on the instance
+  next();
+});
+
+// Use routes
+app.use('/', homeRoutes);
+
+// Set the port and start the server
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log('Server running on port', port);
+});
+
+` },
+    { path: 'src/controllers/homeController.js', content: `export const homeController = {
+  getHomePage: (req, res) => {
+    res.render('index', { title: 'Welcome to MwalaJS MVC' });
+  }
+};` },
+    { path: 'src/routes/homeRoutes.js', content: `import mwalajs from 'mwalajs';
+import { homeController } from '../controllers/homeController.js';
+
+const router = mwalajs.Router();
+
+router.get('/', homeController.getHomePage);
+
+export { router as homeRoutes };
+` },
+{ path: 'src/midwares/midwares.js', content: `import mwalajs from 'mwalajs';
+  export const midwares = (req, res, next) => {
+  // Middleware logic here
+  next();
+};
+
+  ` },
+    { path: 'src/views/index.ejs', content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIEW PAGE</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <h1>FRONT END PAGE FOR YOUR PROJECT</h1>
+  <p>In MwalaJS Framework, you can add more views like dashboard.ejs based on your requirements.</p>
+</body>
+</html>
+` },
+    { path: 'src/models/exampleModel.js', content: `export const exampleModel = {
+  getExampleData: () => {
+    return { message: 'This is a model example' };
+  }
+};
+` },
+    { path: 'src/public/styles.css', content: `body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  background-color: #f4f4f4;
+}
+h1 {
+  color: #333;
+}
+` }
+  ];
+
+  // Write files
+  defaultFiles.forEach(file => {
+    const filePath = path.join(projectPath, file.path);
+    // Create directories if not exist before writing files
+    const dirPath = path.dirname(filePath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+    fs.writeFileSync(filePath, file.content);
+  });
+
+  console.log(`MVC project "${projectName}" created successfully`);
+} else if (command === 'app.js') {
+  execSync('node src/app.js', { stdio: 'inherit' });
+} else if (command === 'generate') {
+  const subCommand = args[1];
+  const name = args[2];
+
+  if (subCommand === 'model' && name) {
+    // Generate model file
+    const modelPath = path.join(process.cwd(), 'src', 'models', `${name}.js`);
+    if (!fs.existsSync(modelPath)) {
+      const content = `export const ${name}Model = {
+  // Define model logic here
+};
+`;
+      fs.writeFileSync(modelPath, content);
+      console.log(`${name} model created successfully.`);
+    } else {
+      console.log(`${name} model already exists.`);
+    }
+  } else if (subCommand === 'controller' && name) {
+    // Generate controller file
+    const controllerPath = path.join(process.cwd(), 'src', 'controllers', `${name}Controller.js`);
+    if (!fs.existsSync(controllerPath)) {
+      const content = `export const ${name}Controller = {
+  get${name}Page: (req, res) => {
+    res.render('${name}', { title: '${name} Page' });
+  }
+};
+`;
+      fs.writeFileSync(controllerPath, content);
+      console.log(`${name} controller created successfully.`);
+    } else {
+      console.log(`${name} controller already exists.`);
+    }
+  } else if (subCommand === 'route' && name) {
+    // Generate route file
+    const routePath = path.join(process.cwd(), 'src', 'routes', `${name}Route.js`);
+    if (!fs.existsSync(routePath)) {
+      const content = `import mwalajs from 'mwalajs';
+import { ${name}Controller } from '../controllers/${name}Controller.js';
+
+const router = mwalajs.Router();
+
+router.get('/', ${name}Controller.get${name}Page);
+
+export { router as ${name}Route };
+`;
+      fs.writeFileSync(routePath, content);
+      console.log(`${name} route created successfully.`);
+    } else {
+      console.log(`${name} route already exists.`);
+    }
+  } else if (subCommand === 'view' && name) {
+    // Generate view file
+    const viewPath = path.join(process.cwd(), 'src', 'views', `${name}.ejs`);
+    if (!fs.existsSync(viewPath)) {
+      const content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name} Page</title>
+</head>
+<body>
+    <h1>${name} View Page</h1>
+</body>
+</html>
+`;
+      fs.writeFileSync(viewPath, content);
+      console.log(`${name} view created successfully.`);
+    } else {
+      console.log(`${name} view already exists.`);
+    }
+  }
+} else if (command === 'add' && args[1] === 'middleware') {
+  const middlewareName = args[2];
+  if (middlewareName) {
+    const middlewarePath = path.join(process.cwd(), 'src', 'middlewares', `${middlewareName}.js`);
+    if (!fs.existsSync(middlewarePath)) {
+      const content = `export const ${middlewareName} = (req, res, next) => {
+  // Middleware logic here
+  next();
+};
+`;
+      fs.writeFileSync(middlewarePath, content);
+      console.log(`${middlewareName} middleware created successfully.`);
+    } else {
+      console.log(`${middlewareName} middleware already exists.`);
+    }
+  } else {
+    console.log('Please provide a middleware name.');
+  }
+}
+
+
+else if (command === 'serve') {
+  execSync('node src/app.js', { stdio: 'inherit' });
+} 
+else if (command === 'help' || command === '?' || command === 'h') {
+  console.log(`
+    Available commands for MwalaJS framework:
+    
+    1. mwala create <appname>           - Create a new MVC project. Example: mwala create myapp
+    2. mwala app.js                     - Run the app.js file to start your application.
+    3. mwala db <command>               - Database commands for various database tasks:
+        - create-database              - Creates a new database.
+        - migrate                      - Run migrations.
+        - rollback                     - Rollback migrations.
+    4. mwala generate <model/controller/route/view> <name> - Generate various MVC components (models, controllers, routes, and views).
+        - Example: mwala generate model user
+        - Example: mwala generate controller userController
+        - Example: mwala generate route userRoute
+        - Example: mwala generate view userView
+    5. mwala add middleware <middlewareName> - Add a middleware to your project. Example: mwala add middleware auth
+    6. mwala serve                       - Start the server (similar to running "mwala app.js" or "node app.js").
+    7. mwala help                        - Show available commands (this command).
+    8. mwala create-table <table_name>    - Create a table in the database. Example: mwala create-table users
+    9. mwala drop-table <table_name>      - Drop a table from the database. Example: mwala drop-table users
+    10. mwala migrate                    - Run migrations on the database. Example: mwala migrate
+    11. mwala rollback                   - Rollback the last migration. Example: mwala rollback
+    
+    For more information, use the command with "help", like:
+        mwala create --help
+        mwala generate model --help
+      `);
+} 
+
+else if (command === 'db' && args[1] === 'create-database') {
+  
+getDbConnection().then(connection => {
+  // You can now use the `connection` object to interact with the database
+}).catch(err => {
+  console.error(`❌ Failed to create database: ${err.message}`);
+});
+  // Create database based on the database type
+}
+
+
+
+
+import { createTable, dropTable, migrateAll } from './runMigrations.js';
+
+// Command Handling
+switch (args[0]) {
+  case 'create-table':
+    if (args.length < 2) {
+      console.error('❌ Please specify a table name. Usage: mwala create-table <table_name>');
+      process.exit(1);
+    }
+    const tableNameToCreate = args[1];
+    createTable(tableNameToCreate);
+    break;
+
+  case 'drop-table':
+    if (args.length < 2) {
+      console.error('❌ Please specify a table name. Usage: mwala drop-table <table_name>');
+      process.exit(1);
+    }
+    const tableNameToDrop = args[1];
+    dropTable(tableNameToDrop);
+    break;
+
+  case 'migrate':
+    if (args[1] === 'all') {
+      migrateAll();
+    } else {
+      console.error('❌ Invalid command. Use: mwala migrate all');
+      process.exit(1);
+    }
+    break;
+
+  default:
+    console.error('❌ Invalid command. Usage: mwala <create-table|drop-table|migrate>');
+    process.exit(1);
+}
