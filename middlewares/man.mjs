@@ -1,1 +1,0 @@
-export const man = (req, res, next) => { next(); };
