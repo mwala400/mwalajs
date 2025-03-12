@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>MwalaJS - High-Performance Framework</title>
+      <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MwalaJS - A high-performance JavaScript framework for Node.js and Express based on the V8 engine.">
+  <meta name="keywords" content="MwalaJS, Node.js, Express, high-performance framework, JavaScript, V8 engine, MVC, migrations">
+  <meta name="author" content="Hekima Ambalile Mwala">
+  
+  <title>MwalaJS - Documentation</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="icon" href="https://yourwebsite.com/favicon.ico" type="image/x-icon">
+
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+    }
+
+    .navbar {
+      background-color: #1e3c72;
+    }
+
+    .navbar-brand, .nav-link {
+      color: white !important;
+    }
+
+    .header-section {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      padding: 50px 0;
+      text-align: center;
+    }
+
+    .header-section h1 {
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    .content-section {
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin: 20px;
+    }
+
+    pre {
+      background-color: #2d2d2d;
+      color: #f4f4f4;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #1e3c72;
+      color: white;
+      margin-top: 20px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .header-section h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">MwalaJS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#overview">Overview</a></li>
+          <li class="nav-item"><a class="nav-link" href="#installation">Installation</a></li>
+          <li class="nav-item"><a class="nav-link" href="#commands">Commands</a></li>
+          <li class="nav-item"><a class="nav-link" href="#structure">Project Structure</a></li>
+          <li class="nav-item"><a class="nav-link" href="#example">Example</a></li>
+          <li class="nav-item"><a class="nav-link" href="#conclusion">Conclusion</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header Section -->
+  <section class="header-section">
+    <div class="container">
+      <h1>Welcome to MwalaJS Documentation</h1>
+      <p>A high-performance framework for JavaScript, Node.js, and Express.</p>
+    </div>
+  </section>
+
+  <!-- Content Sections -->
+  <div class="container">
+    <div class="content-section" id="overview">
+      <h2>Overview of MwalaJS</h2>
+      <p>MwalaJS is an advanced web development framework that uses the **Google V8 engine** to enhance the performance of JavaScript applications.</p>
+    </div>
+
+    <div class="content-section" id="installation">
+      <h2>Installation</h2>
+      <p>To install MwalaJS, use the following command:</p>
+      <pre><code class="command">npm install -g mwalajs</code></pre>
+    </div>
+
+    <div class="content-section" id="commands">
+      <h2>Basic Commands</h2>
+      <p>Here are some useful MwalaJS commands:</p>
+      <pre><code class="command">
+# Create a new project
+mwala new project_name
+
+# Start the development server
+mwala serve
+
+# Run migrations
+mwala migrate
+      </code></pre>
+    </div>
+
+    <div class="content-section" id="structure">
+      <h2>Project Structure</h2>
+      <pre><code>
+/project_name
+  ├── controllers/
+  ├── models/
+  ├── views/
+  ├── routes/
+  ├── public/
+  ├── config/
+  ├── index.js
+      </code></pre>
+    </div>
+
+    <div class="content-section" id="example">
+      <h2>Example Application</h2>
+      <p>Below is a simple **Hello World** example using MwalaJS:</p>
+      <pre><code>
+const Mwala = require('mwalajs');
+const app = new Mwala();
+
+app.get('/', (req, res) => {
+    res.send('Hello, World!');
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+      </code></pre>
+    </div>
+
+    <div class="content-section" id="conclusion">
+      <h2>Conclusion</h2>
+      <p>MwalaJS is a powerful, high-performance framework that simplifies web development with Node.js and Express. Whether you're building small apps or enterprise solutions, MwalaJS provides scalability and efficiency.</p>
+    </div>
+  </div>
+
+
+  
+  
+      <section>
+          <h1>MwalaJS - High-Performance Web Framework</h1>
+          <p>A powerful, efficient, and scalable framework built on the Google <strong>V8 Engine</strong>.</p>
+      </section>
+  
+      <section class="overview">
+          <h2>🚀 Overview of MwalaJS</h2>
+          <p>MwalaJS is a high-speed framework designed for <strong>JavaScript, Node.js, and Express</strong>. 
+          With its integration of the <strong>Google V8 engine</strong>, it ensures your applications run efficiently, 
+          making web development <em>faster, smoother, and more scalable</em>.</p>
+      </section>
+  
+      <section class="features">
+          <h2>🔥 Core Features of MwalaJS</h2>
+          <ul>
+              <li><strong>⚡ High Performance:</strong> Uses the <em>Google V8 engine</em> for rapid execution.</li>
+              <li><strong>📜 ES6 & .mjs Support:</strong> Cleaner, modular JavaScript code.</li>
+              <li><strong>📦 Full Database Migrations:</strong> Inspired by Laravel & Django for seamless schema updates.</li>
+              <li><strong>🛠 MVC Architecture:</strong> Organized application structure.</li>
+              <li><strong>🔗 Node.js & Express Integration:</strong> Enhanced backend functionalities.</li>
+              <li><strong>🌍 Cross-Platform Compatibility:</strong> Runs on Windows, macOS, and Linux.</li>
+              <li><strong>🛡 Security:</strong> Built-in measures to safeguard applications.</li>
+              <li><strong>💡 Open Source & Community Driven:</strong> Regular updates and contributions.</li>
+          </ul>
+      </section>
+  
+      <section class="why-mwala">
+          <h2>🤔 Why Choose MwalaJS?</h2>
+          <ul>
+              <li><strong>🚀 Speed:</strong> Powered by V8 for lightning-fast performance.</li>
+              <li><strong>🔄 Efficiency:</strong> Optimized for maintainability and scalability.</li>
+              <li><strong>📈 Scalability:</strong> From small apps to enterprise-level projects.</li>
+              <li><strong>💨 Rapid Development:</strong> Built-in support for migrations, MVC, and modern JS features.</li>
+              <li><strong>👩‍💻 Developer-Friendly:</strong> Minimal setup, easy-to-follow documentation.</li>
+          </ul>
+      </section>
+  
+      <section class="getting-started">
+          <h2>🛠 Getting Started with MwalaJS</h2>
+          <p>Follow these steps to start using MwalaJS:</p>
+  
+          <h3>📥 Step 1: Download the Setup</h3>
+         
+    <section id="release">
+      <br> <h2 class="section-title">1. VERSION RELEASE</h2>
+      <p>Click below to download the installer For Mwalajs framework:</p>
+      <br><a class="btn" href="https://mwalajs.biasharabora.com/files/mwalaJS_installer.exe" download>Download MwalaJS COMMAND SHELL (CLS) download .exe file here  </a>
+     <br> <p>Click below to download zip file mwalajs framework:</p>
+     <br> <a class="btn" href="https://mwalajs.biasharabora.com/files/mwalajsm.zip" download>Download MwalaJS   mwalajs.zip v1.0.0</a>
+     <br> <p>Click below to download rar file mwalajs framework :</p>
+    <br>  <a class="btn" href="https://mwalajs.biasharabora.com/files/mwalajsm.rar" download>Download MwalaJS   mwalajs.rar v1.0.0</a>
+
+<br>
+</section>
+
+          <h3>⚙️ Step 2: Set Up Your Environment</h3>
+          <p>Follow the on-screen instructions to complete the installation. MwalaJS is compatible with all major operating systems.</p>
+  
+          <h3>📖 Step 3: Read the Documentation</h3>
+          <p>Visit our <a href="#">official documentation</a> to explore features, tutorials, and guides.</p>
+      </section>
+  
+      <section class="conclusion">
+          <h2>🎯 Conclusion</h2>
+          <p>MwalaJS is a game-changer in modern web development. Whether you're building small web applications or enterprise systems, MwalaJS offers unmatched performance, security, and scalability. <br><br>
+          Start building the future of web development today! 🚀</p>
+      </section>
+  
+
+      <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2024 MwalaJS | Built with ❤️ by Hekima Ambalile Mwala</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
