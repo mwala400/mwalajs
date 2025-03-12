@@ -493,3 +493,52 @@ We welcome contributors! Feel free to fork the repository, submit issues, and ma
 ## License
 MwalaJS is open-source and licensed under the MIT License.
 © 2025 MwalaJS Documentation | All Rights Reserved
+
+About MwalaJS Framework
+Your reliable framework for modern applications
+
+Founder: Hekima Ambalile Mwala
+About the Founder
+Hekima Ambalile Mwala is the founder of the MwalaJS framework. He is a highly motivated and passionate software developer with a vision of creating efficient and scalable web applications. He believes in the power of technology to solve real-world problems.
+
+Also work as Electronics and Telecommunication Engineer
+
+you may prefer To learn Engineering and Technology in his youtube account link >> youtube chanel
+
+Contact Information:
+
+Phone: 0747285438
+
+Email: hekimamwala1@gmail.com
+
+Work Email: biasharaboraofficials@gmail.com
+
+Workplace: Biashara Bora
+
+Our Locations
+MwalaJS operates throughout Tanzania, with a special focus on the following key regions:
+
+Dodoma, Tanzania (Main Hub)
+Arusha, Tanzania (Main Hub)
+Dar Es Salaam, Tanzania (Main Branch)
+Mbeya, Tanzania (Main Branch)
+Morogoro, Tanzania (Main Branch)
+SOUTH AFRICA (Main Branch)
+Get in Touch with Us
+For more information or any inquiries, feel free to reach out to us via the contact details mentioned above. We are committed to providing the best solutions for your business needs.
+
+
+1. VERSION RELEASE
+Click below to download the installer For Mwalajs framework:
+
+
+
+Click below to download zip file mwalajs framework:
+
+
+
+Click below to download rar file mwalajs framework :
+
+
+git clone https://github.com/mwala400/mwalajs.git
+
