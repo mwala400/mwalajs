@@ -3,17 +3,23 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { getDbConnection } from '../config/createdatabase.mjs';
-import { createTable, dropTable, migrateAll,rollbackLastMigration } from '../runMigrations.mjs';
-import { createProject } from '../createProject.mjs';
-import { setupMwalajs } from '../setupMwalajs.mjs';
+import { fileURLToPath, pathToFileURL } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Dynamically import modules using relative paths
+const { getDbConnection } = await import(pathToFileURL(path.join(__dirname, '../config/createdatabase.mjs')).href);
+const { createTable, dropTable, migrateAll, rollbackLastMigration } = await import(pathToFileURL(path.join(__dirname, '../runMigrations.mjs')).href);
+const { setupMwalajs } = await import(pathToFileURL(path.join(__dirname, '../setupMwalajs.mjs')).href);
+const { createProject  } = await import(pathToFileURL(path.join(__dirname, '../createProject.mjs')).href);
 
 const args = process.argv.slice(2);
 const command = args[0];
 
 if (!command || command === 'help' || command === 'h') {
   console.log(`
-  🛠️  MwalaJS CLI - List of Commands:
+    MwalaJS CLI - List of Commands:
 
   General Commands:
   - mwala -v | mwala --version → Show the MwalaJS version.
@@ -39,7 +45,7 @@ if (!command || command === 'help' || command === 'h') {
   - mwala generate view <name>        → Create a new view file.
   - mwala generate midware <name>     → Create a new middleware.
 
-  🔹 Use "mwala <command>" to execute a command.
+   Use "mwala <command>" to execute a command.
   `);
   process.exit(0);
 }
@@ -48,7 +54,7 @@ switch (command) {
   case 'version':
   case '-v':
   case '--version':
-    console.log('MwalaJS Version: 1.0.0');
+    console.log('MwalaJS Version: 1.0.1');
     process.exit(0);
 
   case 'create-project':
@@ -60,7 +66,7 @@ switch (command) {
     try {
       execSync('node app.mjs', { stdio: 'inherit' });
     } catch (error) {
-      console.error(`❌ Failed to run the app: ${error.message}`);
+      console.error(` Failed to run the app: ${error.message}`);
       process.exit(1);
     }
     break;
@@ -74,7 +80,7 @@ switch (command) {
     const name = args[2];
 
     if (!subCommand || !name) {
-      console.log('❌ Please specify both subCommand and name.');
+      console.log(' Please specify both subCommand and name.');
       process.exit(1);
     }
 
@@ -87,14 +93,14 @@ switch (command) {
     };
 
     if (!paths[subCommand]) {
-      console.log(`❌ Invalid subCommand: ${subCommand}. Valid options are: ${Object.keys(paths).join(', ')}`);
+      console.log(` Invalid subCommand: ${subCommand}. Valid options are: ${Object.keys(paths).join(', ')}`);
       process.exit(1);
     }
 
     const filePath = path.join(process.cwd(), paths[subCommand], `${name}.mjs`);
 
     if (fs.existsSync(filePath)) {
-      console.log(`❌ ${name} ${subCommand} already exists.`);
+      console.log(` ${name} ${subCommand} already exists.`);
       process.exit(1);
     }
 
@@ -119,20 +125,20 @@ switch (command) {
 
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, content);
-    console.log(`✅ ${name} ${subCommand} created successfully in ${paths[subCommand]}/.`);
+    console.log(` ${name} ${subCommand} created successfully in ${paths[subCommand]}/.`);
     break;
   }
 
   case 'create-db':
     getDbConnection().then(() => console.log('Database created.')).catch(err => {
-      console.error(`❌ Failed to create database: ${err.message}`);
+      console.error(` Failed to create database: ${err.message}`);
       process.exit(1);
     });
     break;
 
   case 'create-table':
     if (!args[1]) {
-      console.error('❌ Please specify a table name.');
+      console.error(' Please specify a table name.');
       process.exit(1);
     }
     createTable(args[1]);
@@ -140,7 +146,7 @@ switch (command) {
 
   case 'drop-table':
     if (!args[1]) {
-      console.error('❌ Please specify a table name.');
+      console.error(' Please specify a table name.');
       process.exit(1);
     }
     dropTable(args[1]);
@@ -150,7 +156,7 @@ switch (command) {
     if (args[1] === 'all') {
       migrateAll();
     } else {
-      console.error('❌ Invalid migration command. Use: mwala migrate all');
+      console.error(' Invalid migration command. Use: mwala migrate all');
       process.exit(1);
     }
     break;
@@ -159,12 +165,12 @@ switch (command) {
    
       rollbackLastMigration();
     } else {
-      console.error('❌ Invalid migration command. Use: mwala roll-back all');
+      console.error(' Invalid migration command. Use: mwala roll-back all');
       process.exit(1);
     }
     break;
 
   default:
-    console.error(`❌ Unknown command: ${command}. Run "mwala help" to see available commands.`);
+    console.error(` Unknown command: ${command}. Run "mwala help" to see available commands.`);
     process.exit(1);
 }

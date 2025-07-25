@@ -12,9 +12,9 @@ const { Client } = pkg;
 const resetEnvFile = () => {
   try {
     fs.writeFileSync('.env', '', 'utf8'); // Empty the .env file
-    console.log('✅ Cleared .env file.');
+    console.log(' Cleared .env file.');
   } catch (error) {
-    console.error('❌ Failed to clear .env file:', error.message);
+    console.error(' Failed to clear .env file:', error.message);
   }
 };
 
@@ -59,7 +59,7 @@ export const getDbConnection = async () => {
   // Prompt for database details
   const dbName = readlineSync.question('Enter the database name: ').trim();
   if (!dbName) {
-    console.log('❌ Database name cannot be empty.');
+    console.log(' Database name cannot be empty.');
     return;
   }
 
@@ -83,7 +83,7 @@ export const getDbConnection = async () => {
   };
 
   writeToEnv(envData);
-  console.log('✅ Database credentials saved to .env file.');
+  console.log(' Database credentials saved to .env file.');
 
   let connection;
 
@@ -98,9 +98,9 @@ export const getDbConnection = async () => {
       const [rows] = await tempConnection.query(`SHOW DATABASES LIKE '${dbName}'`);
       if (rows.length === 0) {
         await tempConnection.query(`CREATE DATABASE \`${dbName}\``);
-        console.log(`✅ MySQL Database "${dbName}" created successfully.`);
+        console.log(` MySQL Database "${dbName}" created successfully.`);
       } else {
-        console.log(`✅ MySQL Database "${dbName}" already exists.`);
+        console.log(` MySQL Database "${dbName}" already exists.`);
       }
 
       connection = await mysql.createConnection({
@@ -123,9 +123,9 @@ export const getDbConnection = async () => {
       const checkDb = await tempClient.query(`SELECT datname FROM pg_database WHERE datname = '${dbName}'`);
       if (checkDb.rows.length === 0) {
         await tempClient.query(`CREATE DATABASE ${dbName}`);
-        console.log(`✅ PostgreSQL Database "${dbName}" created successfully.`);
+        console.log(` PostgreSQL Database "${dbName}" created successfully.`);
       } else {
-        console.log(`✅ PostgreSQL Database "${dbName}" already exists.`);
+        console.log(` PostgreSQL Database "${dbName}" already exists.`);
       }
 
       await tempClient.end();
@@ -140,15 +140,15 @@ export const getDbConnection = async () => {
       await connection.connect();
     } else if (dbType === 'mongodb') {
       connection = await MongoClient.connect(`mongodb://${dbHost}:27017`);
-      console.log(`✅ MongoDB connection to "${dbName}" established.`);
+      console.log(` MongoDB connection to "${dbName}" established.`);
     } else if (dbType === 'sqlite') {
       connection = new sqlite3.Database(`./${dbName}.sqlite`);
-      console.log(`✅ SQLite Database "${dbName}.sqlite" is ready.`);
+      console.log(` SQLite Database "${dbName}.sqlite" is ready.`);
     } else {
-      throw new Error(`❌ Unsupported DB type: ${dbType}`);
+      throw new Error(` Unsupported DB type: ${dbType}`);
     }
   } catch (error) {
-    console.error(`❌ Failed to create database: ${error.message}`);
+    console.error(` Failed to create database: ${error.message}`);
     return;
   }
 

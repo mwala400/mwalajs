@@ -1,7 +1,7 @@
 import mwalajs from 'mwalajs';
 import { homeController,Steps,welcome,about } from '../controllers/homeController.mjs';
 
-const router = mwalajs.constructor.Router(); // Corrected Router usage
+const router = mwalajs.Router(); // Corrected Router usage
 
 router.get('/', homeController.getHomePage);
 router.get('/steps',Steps.getSteps);

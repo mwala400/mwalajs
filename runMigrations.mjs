@@ -24,10 +24,10 @@ const tableExists = async (tableName) => {
 
 export const createTable = async (tableName) => {
   if (await tableExists(tableName)) {
-    console.log(`⚠️ Table "${tableName}" already exists.`);
+    console.log(` Table "${tableName}" already exists.`);
     const userResponse = await askUser(`Do you want to drop and recreate "${tableName}"? (yes/no): `);
     if (userResponse.toLowerCase() !== 'yes') {
-      console.log(`❌ Operation canceled.`);
+      console.log(` Operation canceled.`);
       return;
     }
     await dropTable(tableName);
@@ -59,39 +59,39 @@ export const down = async () => {
 `;
 
   fs.writeFileSync(migrationFile, migrationTemplate.trim());
-  console.log(`✅ Migration file created: ${migrationFile}`);
-  console.log(`🔹 Run "mwala migrate all" to apply migrations.`);
+  console.log(` Migration file created: ${migrationFile}`);
+  console.log(` Run "mwala migrate all" to apply migrations.`);
 };
 
 export const dropTable = async (tableName) => {
   if (!(await tableExists(tableName))) {
-    console.log(`⚠️ Table "${tableName}" does not exist.`);
+    console.log(` Table "${tableName}" does not exist.`);
     return;
   }
   try {
     await sequelize.getQueryInterface().dropTable(tableName);
-    console.log(`✅ Table "${tableName}" dropped successfully.`);
+    console.log(` Table "${tableName}" dropped successfully.`);
   } catch (error) {
-    console.error(`❌ Failed to drop table "${tableName}": ${error.message}`);
+    console.error(` Failed to drop table "${tableName}": ${error.message}`);
   }
 };
 
 export const migrateAll = async () => {
   const files = fs.readdirSync(migrationsDir).filter(file => file.endsWith('.mjs')).sort();
   const executedMigrations = JSON.parse(fs.readFileSync(migrationLog));
-  console.log(`🔍 Found ${files.length} migration(s) to run.`);
+  console.log(` Found ${files.length} migration(s) to run.`);
   
   for (const file of files) {
     if (executedMigrations.includes(file)) continue;
-    console.log(`🚀 Running migration: ${file}`);
+    console.log(` Running migration: ${file}`);
     try {
       const migration = await import(`file://${path.join(migrationsDir, file)}`);
       await migration.up();
       executedMigrations.push(file);
       fs.writeFileSync(migrationLog, JSON.stringify(executedMigrations));
-      console.log(`✅ Migration ${file} completed.`);
+      console.log(` Migration ${file} completed.`);
     } catch (error) {
-      console.error(`❌ Migration failed: ${error.message}`);
+      console.error(` Migration failed: ${error.message}`);
     }
   }
 };
@@ -99,27 +99,27 @@ export const migrateAll = async () => {
 export const rollbackLastMigration = async () => {
   const executedMigrations = JSON.parse(fs.readFileSync(migrationLog));
   if (executedMigrations.length === 0) {
-    console.log('⚠️ No migrations to rollback.');
+    console.log(' No migrations to rollback.');
     return;
   }
   const lastMigration = executedMigrations.pop();
-  console.log(`🔄 Rolling back migration: ${lastMigration}`);
+  console.log(` Rolling back migration: ${lastMigration}`);
   try {
     const migration = await import(`file://${path.join(migrationsDir, lastMigration)}`);
     await migration.down();
     fs.writeFileSync(migrationLog, JSON.stringify(executedMigrations));
-    console.log(`✅ Rolled back: ${lastMigration}`);
+    console.log(` Rolled back: ${lastMigration}`);
   } catch (error) {
-    console.error(`❌ Rollback failed: ${error.message}`);
+    console.error(` Rollback failed: ${error.message}`);
   }
 };
 
 export const listTables = async () => {
   try {
     const tables = await sequelize.getQueryInterface().showAllTables();
-    console.log(`📋 Existing tables: ${tables.length > 0 ? tables.join(', ') : 'No tables found.'}`);
+    console.log(` Existing tables: ${tables.length > 0 ? tables.join(', ') : 'No tables found.'}`);
   } catch (error) {
-    console.error(`❌ Failed to fetch tables: ${error.message}`);
+    console.error(` Failed to fetch tables: ${error.message}`);
   }
 };
 

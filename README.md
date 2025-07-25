@@ -34,17 +34,17 @@ This list ensures you can efficiently manage your MwalaJS project, handle databa
 MwalaJS is a powerful and modern JavaScript framework designed to simplify web application development while offering high performance, scalability, and flexibility. Unlike traditional frameworks, MwalaJS introduces a new way of handling routing, state management, and database interactions.
 
 ## Why Choose MwalaJS?
-### 🚀 High Performance
+###  High Performance
 - Optimized for speed and efficiency
 - Minimal memory usage
 - Faster execution compared to traditional frameworks
 
-### 🔥 Simplicity & Flexibility
+###  Simplicity & Flexibility
 - Easy to learn and use
 - Clean and modular code structure
 - Supports both small-scale and enterprise-level applications
 
-### 🛠️ Built-In Features
+###  Built-In Features
 - Automatic API routing
 - Integrated database management
 - Scalable real-time processing
@@ -342,16 +342,14 @@ MwalaJS is designed to streamline the development of MVC-based applications with
 For full documentation and to contribute, visit the GitHub repository.
 
 Summary of MwalaJS Commands
-
-    🔹 General Commands:
+ General Commands:
       - mwala -v | mwala --version → Show MwalaJS version.
       - mwala help | mwala h → Show help message.
-    
-    🔹 Project Management:
+   Project Management:
       - mwala create-project → Create a new project.
       - mwala init → Initialize MwalaJS.
     
-    🔹 Running the Application:
+     Running the Application:
       - mwala serve | mwala app.mjs → Start MwalaJS app.
     
     🔹 Database Operations:
@@ -449,35 +447,35 @@ Your MwalaJS file structure is well-organized, but to make it more convincing fo
 Hereâ€™s a structured breakdown:
 FOLDERS
 
-  📂 mwalajsm/              # Root directory  
-  │── 📜 app.mjs           # Main application entry point  
-  │── 📂 ATTENDANCE/       # Attendance-related files (clarify purpose)  
-  │── 📂 bin/              # Executable scripts  
-  │── 📂 config/           # Configuration files  
-  │── 📂 controllers/      # Business logic controllers  
-  │── 📂 middlewares/      # Request middlewares  
-  │── 📂 migrations/       # Database migrations  
-  │── 📂 models/           # Database models  
-  │── 📂 mwalajs/          # Core framework code  
-  │── 📂 public/           # Static assets (CSS, JS, Images)  
-  │── 📂 routes/           # API & web routes  
-  │── 📂 views/            # Frontend templates (if using templating)  
-  │── 📂 dist/             # Compiled or bundled output  
-  │── 📜 package.json      # Dependencies & scripts  
-  │── 📜 README.md         # Project documentation  
-  │── 📜 start.bat         # Windows startup script  
-  │── 📜 setup.sh          # Unix-based setup script  
-  │── 📜 createProject.mjs # Automates project creation  
-  │── 📜 runMigrations.mjs # Database migration script  
-  │── 📂 installer/        # Installer-related files  
-  │── 📂 node_modules/     # Dependencies  
+  -- mwalajsm/              # Root directory  
+  │──  app.mjs           # Main application entry point  
+  │──  ATTENDANCE/       # Attendance-related files (clarify purpose)  
+  │──  bin/              # Executable scripts  
+  │──  config/           # Configuration files  
+  │──  controllers/      # Business logic controllers  
+  │──  middlewares/      # Request middlewares  
+  │──  migrations/       # Database migrations  
+  │──  models/           # Database models  
+  │──  mwalajs/          # Core framework code  
+  │──  public/           # Static assets (CSS, JS, Images)  
+  │──  routes/           # API & web routes  
+  │──  views/            # Frontend templates (if using templating)  
+  │──  dist/             # Compiled or bundled output  
+  │── package.json      # Dependencies & scripts  
+  │── README.md         # Project documentation  
+  │── start.bat         # Windows startup script  
+  │── setup.sh          # Unix-based setup script  
+  │── createProject.mjs # Automates project creation  
+  │──  runMigrations.mjs # Database migration script  
+  │──  installer/        # Installer-related files  
+  │──  node_modules/     # Dependencies  
   2. Why Developers Should Switch to MwalaJS
   MwalaJS should highlight:
-  ✅ Better modular structure (prevents spaghetti code)
-  ✅ Built-in migrations & models (reduces DB setup time)
-  ✅ Simplified setup scripts (automates installation)
-  ✅ Performance optimizations (mention key tech choices)
-  ✅ Security-first approach (middleware for authentication, validation)
+   Better modular structure (prevents spaghetti code)
+   Built-in migrations & models (reduces DB setup time)
+   Simplified setup scripts (automates installation)
+   Performance optimizations (mention key tech choices)
+   Security-first approach (middleware for authentication, validation)
   
 3. Preventing Module Repetition
 Are there duplicate functionalities in middlewares/, controllers/, or mwalajs/?

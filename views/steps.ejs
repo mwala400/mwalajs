@@ -286,8 +286,8 @@
     mwalajs.set('view engine', 'ejs');
     mwalajs.set('views', path.join(__dirname, 'views'));
     
-    mwalajs.static(path.join(__dirname, 'public'));
-    
+    mwalajs.useStatic(path.join(__dirname, 'public'));
+      
     mwalajs.use('/', homeRoutes);
     
     const port = process.env.PORT || 3000;
@@ -302,7 +302,7 @@
     import mwalajs from 'mwalajs';
     import { homeController, Steps, welcome, about } from '../controllers/homeController.mjs';
     
-    const router = mwalajs.constructor.Router();
+    const router = mwalajs.Router();
     
     router.get('/', homeController.getHomePage);
     router.get('/steps', Steps.getSteps);
@@ -348,29 +348,29 @@
             <p>For full documentation and to contribute, visit the <a href="https://github.com/mwala400/mwalajs" target="_blank">GitHub repository</a>.</p>
             <h3>Summary of MwalaJS Commands</h3>
             <pre><code>
-    🔹 General Commands:
+     General Commands:
       - mwala -v | mwala --version → Show MwalaJS version.
       - mwala help | mwala h → Show help message.
     
-    🔹 Project Management:
+     Project Management:
       - mwala create-project → Create a new project.
       - mwala init → Initialize MwalaJS.
     
-    🔹 Running the Application:
+     Running the Application:
       - mwala serve | mwala app.mjs → Start MwalaJS app.
     
-    🔹 Database Operations:
+     Database Operations:
       - mwala create-db → Create database from .env file.
       - mwala migrate all → Run all pending migrations.
       - mwala rollback all → Undo migration.
     
-    🔹 Code Generation:
+     Code Generation:
       - mwala generate model <name> → Create a model.
       - mwala generate controller <name> → Create a controller.
       - mwala generate route <name> → Create a route.
       - mwala generate view <name> → Create a view.
     
-    🔹 To execute a command, use:
+     To execute a command, use:
       mwala <command>
             </code></pre>
         </section>
@@ -451,35 +451,35 @@ Hereâ€™s a structured breakdown:
 <h1>FOLDERS</h1>
 <pre>
 
-  📂 mwalajsm/              # Root directory  
-  │── 📜 app.mjs           # Main application entry point  
-  │── 📂 ATTENDANCE/       # Attendance-related files (clarify purpose)  
-  │── 📂 bin/              # Executable scripts  
-  │── 📂 config/           # Configuration files  
-  │── 📂 controllers/      # Business logic controllers  
-  │── 📂 middlewares/      # Request middlewares  
-  │── 📂 migrations/       # Database migrations  
-  │── 📂 models/           # Database models  
-  │── 📂 mwalajs/          # Core framework code  
-  │── 📂 public/           # Static assets (CSS, JS, Images)  
-  │── 📂 routes/           # API & web routes  
-  │── 📂 views/            # Frontend templates (if using templating)  
-  │── 📂 dist/             # Compiled or bundled output  
-  │── 📜 package.json      # Dependencies & scripts  
-  │── 📜 README.md         # Project documentation  
-  │── 📜 start.bat         # Windows startup script  
-  │── 📜 setup.sh          # Unix-based setup script  
-  │── 📜 createProject.mjs # Automates project creation  
-  │── 📜 runMigrations.mjs # Database migration script  
-  │── 📂 installer/        # Installer-related files  
-  │── 📂 node_modules/     # Dependencies  
+   mwalajsm/              # Root directory  
+  │──  app.mjs           # Main application entry point  
+  │──  ATTENDANCE/       # Attendance-related files (clarify purpose)  
+  │──  bin/              # Executable scripts  
+  │──  config/           # Configuration files  
+  │──  controllers/      # Business logic controllers  
+  │──  middlewares/      # Request middlewares  
+  │──  migrations/       # Database migrations  
+  │──  models/           # Database models  
+  │──  mwalajs/          # Core framework code  
+  │──  public/           # Static assets (CSS, JS, Images)  
+  │──  routes/           # API & web routes  
+  │──  views/            # Frontend templates (if using templating)  
+  │──  dist/             # Compiled or bundled output  
+  │──  package.json      # Dependencies & scripts  
+  │──  README.md         # Project documentation  
+  │──  start.bat         # Windows startup script  
+  │──  setup.sh          # Unix-based setup script  
+  │──  createProject.mjs # Automates project creation  
+  │──  runMigrations.mjs # Database migration script  
+  │──  installer/        # Installer-related files  
+  │──  node_modules/     # Dependencies  
   2. Why Developers Should Switch to MwalaJS
   MwalaJS should highlight:
-  ✅ Better modular structure (prevents spaghetti code)
-  ✅ Built-in migrations & models (reduces DB setup time)
-  ✅ Simplified setup scripts (automates installation)
-  ✅ Performance optimizations (mention key tech choices)
-  ✅ Security-first approach (middleware for authentication, validation)
+   Better modular structure (prevents spaghetti code)
+   Built-in migrations & models (reduces DB setup time)
+   Simplified setup scripts (automates installation)
+   Performance optimizations (mention key tech choices)
+   Security-first approach (middleware for authentication, validation)
   </pre>
 
 3. Preventing Module Repetition

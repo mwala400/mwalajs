@@ -1,0 +1,5 @@
+#!/bin/sh
+# Resolve the directory containing this script, even if called via symlink
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+node "$SCRIPT_DIR/bin/mwala.mjs" "$@"
+

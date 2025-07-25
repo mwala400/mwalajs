@@ -12,7 +12,7 @@ mwalajs.set('view engine', 'ejs');
 mwalajs.set('views', path.join(__dirname, 'views'));
 
 // Serve static files correctly
-mwalajs.static(path.join(__dirname, 'public'));
+mwalajs.useStatic(path.join(__dirname, 'public'));
 
 // Use routes
 mwalajs.use('/', homeRoutes);
