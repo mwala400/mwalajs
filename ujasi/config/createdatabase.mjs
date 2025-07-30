@@ -27,7 +27,6 @@ const writeToEnv = (data) => {
   fs.writeFileSync('.env', envContent, 'utf8');
 };
 
-
 // Function to create the database connection
 export const getDbConnection = async () => {
   resetEnvFile(); // Clear .env file before proceeding

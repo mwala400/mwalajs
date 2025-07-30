@@ -9,7 +9,7 @@
     "cli": "node bin/mwala.mjs"
   },
   "bin": {
-    "mwala": "./bin/mwala.mjs"
+    "mwala": "bin/mwala.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.7",

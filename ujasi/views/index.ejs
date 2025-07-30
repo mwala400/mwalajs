@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Title of the page for search engines -->
+  <title>MwalaJS</title>
+  
+  <!-- Meta description for better SEO ranking -->
+  <meta name="description" content="Get detailed help and documentation for MwalaJS framework. Learn how to use MwalaJS commands, structure, installation, and more.">
+  
+  <!-- Meta keywords for SEO -->
+  <meta name="keywords" content="MwalaJS, MVC framework, MwalaJS installation, MwalaJS commands, MwalaJS documentation, web development framework, JavaScript framework, full-stack development">
+  
+  <!-- Author information -->
+  <meta name="author" content="Hekima Ambalile Mwala">
+  
+  <!-- Open Graph meta tags for social media optimization -->
+  <meta property="og:title" content="MwalaJS - Help | Documentation for MVC Framework">
+  <meta property="og:description" content="Get detailed help and documentation for MwalaJS framework. Learn how to use MwalaJS commands, structure, installation, and more.">
+  <meta property="og:image" content="path-to-image.jpg"> <!-- Add your image URL for social media previews -->
+  <meta property="og:url" content="https://yourwebsite.com/help"> <!-- Add your actual website URL here -->
+  
+  <!-- Twitter meta tags for better visibility on Twitter -->
+  <meta name="twitter:title" content="MwalaJS - Help | Documentation for MVC Framework">
+  <meta name="twitter:description" content="Get detailed help and documentation for MwalaJS framework. Learn how to use MwalaJS commands, structure, installation, and more.">
+  <meta name="twitter:image" content="path-to-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:url" content="https://mwalajs.biasharabora.com">
+  <meta property="og:image" content="https://your-website-url.com/images/mwala-logo.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+  <!-- Favicon for the website -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  
+  <!-- Link to external stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+ 
+ 
+  <style>
+
+    
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .help-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    pre {
+      background-color: #2d2d2d;
+      color: #f4f4f4;
+      padding: 20px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .command {
+      font-weight: bold;
+      color: #5c5c5c;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        font-size: 14px;
+      }
+
+      .container {
+        padding: 10px;
+      }
+
+      pre {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.2em;
+      }
+
+      pre {
+        padding: 10px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Structured data for better search engine understanding (JSON-LD) -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "MwalaJS Help Documentation",
+      "description": "Get detailed help and documentation for MwalaJS framework. Learn how to use MwalaJS commands, structure, installation, and more.",
+      "url": "https://mwalajs.biasharabora.com/setups", 
+      "publisher": {
+        "@type": "Organization",
+        "name": "MwalaJS"
+      }
+    }
+  </script>
+  
+</head>
+<body>
+  <!-- Navbar for easy navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">MwalaJS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" href="steps#overview">Overview</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="steps#installation">Installation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="steps#commands">Commands</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="steps#structure">Project Structure</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="steps#example">Example Application</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="steps#conclusion">Conclusion</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>MwalaJS Framework Help</h1>
+    <div class="help-content">
+      <p>Available commands for MwalaJS framework:</p>
+      <pre>
+. <span class="command">mwala create-project &lt;&gt;</span> - Create a new MVC project. Example: mwala create myapp
+. <span class="command">mwala app.mjs</span> - Run the app.mjs file to start your application.
+. <span class="command">Database Operations:&gt;</span> - Database commands for various database tasks:
+- mwala create-db            → Create the database specified in the .env file.        
+- mwala create-table <name>  → Create a specific database table.
+- mwala drop-table <name>    → Drop a specific database table.
+- mwala migrate all          → Run all pending migrations.
+- mwala rollback all         →to undo  migration
+4. <span class="command">mwala generate &lt;model/controller/route/view&gt; &lt;name&gt;</span> - Generate various MVC components (models, controllers, routes, and views).
+Code Generation:
+- mwala generate model <name>       → Create a new model.
+- mwala generate controller <name>  → Create a new controller.
+- mwala generate route <name>       → Create a new route.
+- mwala generate view <name>        → Create a new view file.
+- mwala generate midware <name>     → Create a new middleware.
+. <span class="command">mwala serve</span> - Start the server (similar to running "mwala app.mjs" or "node app.mjs").
+. <span class="command">mwala help</span> - Show available commands (this command).
+. <span class="command">mwala create-table &lt;table_name&gt;</span> - Create a table in the database. Example: mwala create-table users
+. <span class="command">mwala drop-table &lt;table_name&gt;</span> - Drop a table from the database. Example: mwala drop-table users
+. <span class="command">mwala migrate all</span> - Run migrations on the database. Example: mwala migrate
+. <span class="command">mwala rollback all</span> - Rollback the last migration. Example: mwala rollback
+      </pre>
+     
+    <section id="release">
+      <br> <h2 class="section-title">1. VERSION RELEASE</h2>
+        <p>Click below to download the installer For Mwalajs framework:</p>
+        <br><a class="btn" href="https://mwalajs.biasharabora.com/files/mwalaJS_installer.exe" download>Download MwalaJS COMMAND SHELL (CLS) download .exe file here  </a>
+       <br> <p>Click below to download zip file mwalajs framework:</p>
+       <br> <a class="btn" href="https://mwalajs.biasharabora.com/files/mwalajsm.zip" download>Download MwalaJS   mwalajs.zip v1.0.0</a>
+       <br> <p>Click below to download rar file mwalajs framework :</p>
+      <br>  <a class="btn" href="https://mwalajs.biasharabora.com/files/mwalajsm.rar" download>Download MwalaJS   mwalajs.rar v1.0.0</a>
+
+<br>
+
+</section>
+
+    </div>
+  </div>
+  <ul >
+    <li c>
+      <a class="link active" href="/welcome">MWALAJS FRAMEWORK OVERVIEW</a>
+    </li>
+    <li >
+      <a href="/steps">steps  to get started</a>
+    </li>
+    <li class="nav-item">
+      <a href="steps#commands">Commands</a>
+    </li>
+    <li class="nav-item">
+      <a href="steps#structure">Project Structure</a>
+    </li>
+    <li class="nav-item">
+      <a href="steps#example">Example Application</a>
+    </li>
+    <li class="nav-item">
+      <a href="/about">about</a>
+    </li>
+  </ul>
+</body>
+</html>
+
+
+

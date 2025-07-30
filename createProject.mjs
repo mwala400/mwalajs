@@ -51,9 +51,9 @@ async function createProject() {
             fs.mkdirSync(newProjectPath);
 
             const itemsToCopy = [
-                "app.mjs", "controllers", "mwalajs", "package-lock.json", "routes",
-                "views", "bin", "middlewares", "config", "models", "package.json",
-                "README.md", "public", "runMigrations.mjs", "setupMwalajs.mjs"
+                "app.mjs", "controllers", "mwalajs", "routes",
+                "views", "middlewares", "models", "package.json",
+                "README.md", "public"
             ];
 
             for (const item of itemsToCopy) {
