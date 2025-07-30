@@ -1,6 +1,6 @@
 {
   "name": "mwalajs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MwalaJS Framework CLI Tool",
   "type": "module",
   "main": "app.mjs",
