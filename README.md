@@ -77,6 +77,59 @@ mwala serve
 ### app.mjs
 Here is an example of the default `app.mjs` file for starting the server:
 
+
+git clone https://github.com/mwala400/mwalajs.git
+![npm version](https://img.shields.io/npm/v/mwalajs)
+![GitHub issues](https://img.shields.io/github/issues/mwala400/mwalajs)
+![License](https://img.shields.io/github/license/mwala400/mwalajs)
+# MwalaJS Framework
+
+MwalaJS is a modern CLI tool and web framework  built on top of Javascript,Node.js and Express.js for powerful and fast backend and frontend development. It simplifies creating MVC applications, managing databases, and generating code scaffolding.
+
+---
+
+## Table of Contents
+
+- [Features](#features)  
+- [Requirements](#requirements)  
+- [Installation](#installation)  
+- [Setup](#setup)  
+- [Usage](#usage)  
+- [CLI Commands](#cli-commands)  
+- [Project Structure](#project-structure)  
+- [Contributing](#contributing)  
+- [License](#license)  
+
+---
+
+## Features
+
+- Lightweight Express.js wrapper with MVC pattern  
+- CLI tool for project scaffolding and database management  
+- Support for multiple databases: MongoDB, MySQL, PostgreSQL, SQLite  
+- Built-in middleware integration (session, cors, helmet, compression)  
+- Easy static file serving and routing  
+- Code generation for models, controllers, routes, views, and middleware  
+- Migration support for database schema changes  
+
+---
+
+## Requirements
+
+- Node.js v18 or higher  
+- npm (comes with Node.js)  
+- Supported databases (MongoDB, MySQL, PostgreSQL, SQLite) installed and configured  
+
+---
+
+## Installation
+
+Install MwalaJS globally via npm:
+
+```bash
+npm install -g mwalajs
+
+
 ```javascript
 import mwalajs from 'mwalajs';
 import { homeRoutes } from './routes/homeRoutes.mjs';
@@ -89,7 +142,7 @@ const __dirname = path.dirname(__filename);
 mwalajs.set('view engine', 'ejs');
 mwalajs.set('views', path.join(__dirname, 'views'));
 
-mwalajs.static(path.join(__dirname, 'public'));
+mwalajs.useStatic(path.join(__dirname, 'public'));
 
 mwalajs.use('/', homeRoutes);
 
@@ -106,7 +159,7 @@ Here is an example of the default `homeRoutes.mjs` file:
 import mwalajs from 'mwalajs';
 import { homeController, Steps, welcome, about } from '../controllers/homeController.mjs';
 
-const router = mwalajs.constructor.Router();
+const router = mwalajs.Router();
 
 router.get('/', homeController.getHomePage);
 router.get('/steps', Steps.getSteps);
@@ -154,8 +207,8 @@ export const about = {
 - `mwala help` | `mwala h`       → Show this help message.
 
 #### Project Management:
-- `mwala create-project <name>`       → Create a new MwalaJS project.
-- `mwala init`                         → Initialize MwalaJS in the current project.
+- `mwala create-project `       → Create a new MwalaJS project Then will request project name.
+- `mwala init`                         → Initialize MwalaJS in the current project I N OLD VERSION .
 
 #### Running the Application:
 - `mwala serve` | `mwala app.mjs` → Start the MwalaJS application.
@@ -188,7 +241,7 @@ Clone the repository from GitHub:
 
 git clone https://github.com/mwala400/mwalajs.git
 
-Using a ZIP, EXE, or RAR File
+Using a ZIP, EXE, or RAR File 
 Download and extract the files from the available compressed format:
 
 ZIP: Extract using WinRAR or 7-Zip.
@@ -208,9 +261,9 @@ Click below to download rar file mwalajs framework :
 
 
 
-2. Setting Up MwalaJS
+2. Setting Up MwalaJS if installed through .exe,zip or rar
 Initialize MwalaJS
-mwala init
+mwala init 
 Creating a New Project
 mwala create-project
 3. Running the Application
@@ -366,8 +419,8 @@ Summary of MwalaJS Commands
     🔹 To execute a command, use:
       mwala 
             
-mwalajsm/ # Root directory
-      mwalajsm/               # Root directory
+mwalajs/ # Root directory
+      mwalajs/               # Root directory
       │── app.mjs             # Main application file
       │── runMigrations.mjs   # Handles database migrations
       │── createProject.mjs   # Script for creating new projects
@@ -447,7 +500,7 @@ Your MwalaJS file structure is well-organized, but to make it more convincing fo
 Hereâ€™s a structured breakdown:
 FOLDERS
 
-  -- mwalajsm/              # Root directory  
+  -- mwalajs/              # Root directory  
   │──  app.mjs           # Main application entry point  
   │──  ATTENDANCE/       # Attendance-related files (clarify purpose)  
   │──  bin/              # Executable scripts  
@@ -536,10 +589,3 @@ Click below to download zip file mwalajs framework:
 
 
 Click below to download rar file mwalajs framework :
-
-
-git clone https://github.com/mwala400/mwalajs.git
-![npm version](https://img.shields.io/npm/v/mwalajs)
-![GitHub issues](https://img.shields.io/github/issues/mwala400/mwalajs)
-![License](https://img.shields.io/github/license/mwala400/mwalajs)
-

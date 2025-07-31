@@ -1,27 +1,40 @@
 import express from 'express';
 
 class Mwala {
-  // ... constructor, set, use, etc.
   constructor() {
     this.app = express();
-    this.settings = {};
   }
 
+  // Set application settings
   set(setting, value) {
-    this.settings[setting] = value;
     this.app.set(setting, value);
   }
 
-  use(route, handler) {
-    if (typeof route === 'string') {
-      this.app.use(route, handler);
-    } else {
-      this.app.use(route);
-    }
+  // Accept multiple middlewares or (path, middleware)
+  use(...args) {
+    this.app.use(...args);
   }
 
-  static(pathDir) {
-    this.app.use(express.static(pathDir));
+  // Serve static files
+  useStatic(dirPath) {
+    this.app.use(express.static(dirPath));
+  }
+
+  // Route methods
+  get(...args) {
+    this.app.get(...args);
+  }
+
+  post(...args) {
+    this.app.post(...args);
+  }
+
+  put(...args) {
+    this.app.put(...args);
+  }
+
+  delete(...args) {
+    this.app.delete(...args);
   }
 
   listen(port, callback) {
@@ -32,54 +45,24 @@ class Mwala {
     return express.Router();
   }
 
-  
-  //  ADD THESE METHODS to support GET/POST/PUT/DELETE
-  get(path, handler) {
-    this.app.get(path, handler);
-  }
-
-  post(path, handler) {
-    this.app.post(path, handler);
-  }
-
-  put(path, handler) {
-    this.app.put(path, handler);
-  }
-
-  delete(path, handler) {
-    this.app.delete(path, handler);
-  }
-
-  // ✅ Proxy core express middleware
+  // Built-in body parsers
   json() {
     return express.json();
   }
 
-  urlencoded(options) {
+  urlencoded(options = { extended: true }) {
     return express.urlencoded(options);
   }
 
-  raw(options) {
-    return express.raw(options);
-  }
-
-  text(options) {
-    return express.text(options);
-  }
-
-  async cookieParser(secret) {
-    const { default: cookieParser } = await import('cookie-parser');
-    return cookieParser(secret);
-  }
-
+  // Async external middlewares
   async session(options) {
     const { default: session } = await import('express-session');
     return session(options);
   }
 
-  async morgan(format) {
-    const { default: morgan } = await import('morgan');
-    return morgan(format);
+  async cookieParser(secret) {
+    const { default: cookieParser } = await import('cookie-parser');
+    return cookieParser(secret);
   }
 
   async helmet(options) {
@@ -90,6 +73,11 @@ class Mwala {
   async compress(options) {
     const { default: compression } = await import('compression');
     return compression(options);
+  }
+
+  async morgan(format) {
+    const { default: morgan } = await import('morgan');
+    return morgan(format);
   }
 
   async override(method) {
@@ -112,7 +100,7 @@ class Mwala {
     return bodyParser.json();
   }
 
-  async bodyParserUrlencoded(options) {
+  async bodyParserUrlencoded(options = { extended: true }) {
     const { default: bodyParser } = await import('body-parser');
     return bodyParser.urlencoded(options);
   }

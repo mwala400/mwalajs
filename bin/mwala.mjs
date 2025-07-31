@@ -53,8 +53,9 @@ if (!command || command === 'help' || command === 'h') {
 switch (command) {
   case 'version':
   case '-v':
+  case 'v':
   case '--version':
-    console.log('MwalaJS Version: 1.0.1');
+    console.log('MwalaJS Version: 1.0.5');
     process.exit(0);
 
   case 'create-project':
