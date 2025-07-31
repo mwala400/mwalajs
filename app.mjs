@@ -1,3 +1,4 @@
+//app.mjs
 import mwalajs from 'mwalajs';
 import { homeRoutes } from './routes/homeRoutes.mjs';
 import { fileURLToPath } from 'url';

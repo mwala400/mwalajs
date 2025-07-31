@@ -539,4 +539,7 @@ Click below to download rar file mwalajs framework :
 
 
 git clone https://github.com/mwala400/mwalajs.git
+![npm version](https://img.shields.io/npm/v/mwalajs)
+![GitHub issues](https://img.shields.io/github/issues/mwala400/mwalajs)
+![License](https://img.shields.io/github/license/mwala400/mwalajs)
 

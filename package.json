@@ -1,15 +1,22 @@
 {
   "name": "mwalajs",
-  "version": "1.0.2",
-  "description": "MwalaJS Framework CLI Tool",
+  "version": "1.0.3",
+  "description": "MwalaJS Framework CLI Tool and Web Framework for Backend and Frontend Development.",
   "type": "module",
   "main": "app.mjs",
-  "scripts": {
-    "start": "node app.mjs",
-    "cli": "node bin/mwala.mjs"
+  "exports": {
+    ".": "./index.mjs"
   },
   "bin": {
     "mwala": "bin/mwala.mjs"
+  },
+  "scripts": {
+    "start": "node app.mjs",
+    "cli": "node bin/mwala.mjs",
+    "test": "echo \"No test specified\" && exit 0",
+    "prepare": "npm run build",
+    "build": "echo 'Build step if needed'",
+    "postinstall": "echo 'Thanks for installing MwalaJS Framework! '"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
@@ -26,33 +33,40 @@
     "sequelize": "^6.37.6",
     "sqlite3": "^5.1.7"
   },
-  "devDependencies": {
-    "@vercel/ncc": "^0.38.3",
-    "nexe": "^5.0.0-beta.4",
-    "pkg": "^5.8.1"
+  "keywords": [
+    "mwalajs",
+    "mwala",
+    "framework",
+    "nodejs",
+    "express",
+    "mvc",
+    "cli",
+    "generator",
+    "backend",
+    "frontend",
+    "web-framework",
+    "orm",
+    "rest-api"
+  ],
+  "author": {
+    "name": "Hekima Ambalile Mwala",
+    "email": "biasharaboraofficials@gmail.com",
+    "url": "https://github.com/mwala400"
   },
-  "pkg": {
-    "assets": [
-      "views/**/*",
-      "public/**/*",
-      "config/**/*.mjs",
-      "runMigrations.mjs",
-      "setupMwalajs.mjs",
-      "createProject.mjs",
-      ".env",
-      "README.md",
-      "package.json"
-    ],
-    "targets": [
-      "node18-win-x64",
-      "node18-linux-x64",
-      "node18-macos-x64"
-    ],
-    "outputPath": "dist"
-  },
-  "author": "HEKIMA AMBALILE MWALA",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mwala400/mwalajs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mwala400/mwalajs/issues"
+  },
+  "homepage": "https://github.com/mwala400/mwalajs#readme",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
   }
 }
