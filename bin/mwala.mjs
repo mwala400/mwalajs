@@ -282,9 +282,12 @@ function runSafeSync(fn, successMsg = 'Operation completed', errorPrefix = 'Oper
      console.log(`MwalaJS Version: ${pkg.version}`);
      break;
 
-      case 'create-project':
-        runSafeSync(createProject, 'Project created successfully');
-        break;
+    case 'create-project':
+  await runSafe(async () => {
+    await createProject(args[1]);
+  }, 'Project created successfully');
+  break;
+
 
       case 'init':
         runSafe(setupMwalajs, 'MwalaJS initialized successfully');
