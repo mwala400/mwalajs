@@ -47,9 +47,8 @@ export const createTable = async (tableName) => {
 
   const migrationTemplate = `
 
-const sequelize = (await import(
-  new URL('./config/createTablesetdb.mjs', import.meta.url)
-)).sequelize;
+import { sequelize } from 'mwalajs/config/createTablesetdb';
+
 import { DataTypes } from 'sequelize';
 
 export const up = async () => {
