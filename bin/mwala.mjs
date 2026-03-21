@@ -39,7 +39,7 @@ const __dirname = path.dirname(__filename);
 // ────────────────────────────────────────────────
 
 let imports = {};
-// let setupMwalajs, createProject, dropAllTables, getDbConnection;
+
 let {
   setupMwalajs,
   createProject,
@@ -56,6 +56,28 @@ showDatabaseSize,
   vacuumDatabase,
   showConnections,
   killConnections,
+
+  checkTableExists,
+  describeTable,
+  showCreateTable,
+  countRows,
+  truncateTable,
+  safeDropTable,
+  renameTable,
+  exportTableToCsv,
+  exportTableToJson,
+  exportTableToSql,
+  optimizeTable,
+  bulkInsert,
+  getRowByPrimaryKey,
+  copyTable,
+  importCsvToTable,
+  importJsonToTable,
+  importSqlToTable,
+  backupDatabase,
+  restoreDatabase,
+  seedDatabase,
+
 } = imports;
 
 try {
@@ -85,8 +107,16 @@ try {
     ...normalize(maintenance),     // ← important
   };
 
+  // ← Ongeza hizi mbili kwa debug
+console.log('Functions zilizopo kutoka dbUtils:');
+console.log(Object.keys(imports).filter(key => key.includes('export') || key.includes('Export')));
+
+
   // 🔥 IMPORTANT FIX
 ({
+  // from ../createdatabase.mjs
+  getDbConnection,
+  // from ../runMigrations.mjs
   setupMwalajs,
   createProject,
   dropAllTables,
@@ -103,6 +133,28 @@ try {
   vacuumDatabase,
   showConnections,
   killConnections,
+//from ../config/dbUtils.mjs
+
+checkTableExists,
+  describeTable,
+  showCreateTable,
+  countRows,
+  truncateTable,
+  safeDropTable,
+  renameTable,
+  exportTableToCsv,
+  exportTableToJson,
+  exportTableToSql,
+  optimizeTable,
+  bulkInsert,
+  getRowByPrimaryKey,
+  copyTable,
+  importCsvToTable,
+  importJsonToTable,
+  importSqlToTable,
+  backupDatabase,
+  restoreDatabase,
+  seedDatabase,
   // n.k.
 } = imports);
 
@@ -586,15 +638,15 @@ case 'db:restore': {
   const file = args[2];
   const ext = path.extname(file).toLowerCase();
 
-  if (ext === '.csv') {
-    await runSafe(() => exportTableToCsv(table, file), 'Table exported to CSV');
+if (ext === '.csv') {
+    await runSafe(() => imports.exportTableToCsv(table, file), 'Table exported to CSV');
   } 
   else if (ext === '.json') {
-    await runSafe(() => exportTableToJson(table, file), 'Table exported to JSON');
+    await runSafe(() => imports.exportTableToJson(table, file), 'Table exported to JSON');
   } 
   else if (ext === '.sql') {
-    await runSafe(() => exportTableToSql(table, file), 'Table exported to SQL');
-  } 
+    await runSafe(() => imports.exportTableToSql(table, file), 'Table exported to SQL');
+  }
   else {
     error('Unsupported file type. Use .csv, .json, or .sql');
   }
@@ -627,35 +679,6 @@ case 'db:restore': {
 
   break;
 }
-
-
-      // case 'db:size':
-      //   await runSafe(showDatabaseSize, 'Database size shown');
-      //   break;
-
-      // case 'db:indexes':
-      //   if (!args[1]) return error('Table name required');
-      //   await runSafe(() => listIndexes(args[1]), `Indexes for ${args[1]}`);
-      //   break;
-
-      // case 'db:analyze':
-      //   if (!args[1]) return error('Table name required');
-      //   await runSafe(() => analyzeTable(args[1]), `Table ${args[1]} analyzed`);
-      //   break;
-
-      // case 'db:reindex':
-      //   if (!args[1]) return error('Table name required');
-      //   await runSafe(() => reindexTable(args[1]), `Table ${args[1]} reindexed`);
-      //   break;
-
-      // case 'db:vacuum':
-      //   await runSafe(vacuumDatabase, 'Database vacuumed');
-      //   break;
-
-      // case 'db:connections':
-      //   await runSafe(showConnections, 'Active connections shown');
-      //   break;
-
 
       case 'db:size':
   await runSafe(() => imports.showDatabaseSize(), 'Database size shown');
