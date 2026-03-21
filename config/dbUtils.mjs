@@ -3,7 +3,9 @@
 // Supports MySQL/MariaDB, PostgreSQL, SQLite (best effort)
 
 import { sequelize } from './createTablesetdb.mjs'; // adjust path if needed
-import fs from 'fs/promises'; // prefer promises version
+// import fs from 'fs/promises'; // prefer promises version
+import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 import readlineSync from 'readline-sync';
 
@@ -835,6 +837,221 @@ export async function importSqlToTable(filename, options = {}) {
 }
 
 
+export async function backupDatabase(options = {}) {
+  const {
+    name,
+    includeData = true,
+    outputDir = '.',
+    override = false,
+  } = options;
+
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+    const dbName = sequelize.config?.database || 'database';
+    const dialect = sequelize.getDialect(); // mysql | postgres | mssql | etc
+
+    // ─────────────────────────────
+    // 1. SMART EXTENSION BY DB TYPE
+    // ─────────────────────────────
+    let extension = '.sql';
+
+    if (dialect === 'mongo' || dialect === 'mongodb') {
+      extension = '.json';
+    } else if (dialect === 'postgres') {
+      extension = '.sql';
+    } else if (dialect === 'mysql') {
+      extension = '.sql';
+    }
+
+    // ─────────────────────────────
+    // 2. SMART NAME RULES
+    // ─────────────────────────────
+    let fileBase;
+
+    if (name) {
+      fileBase = path.parse(name).name; // remove extension if user added
+    } else {
+      fileBase = `${dbName}_backup_${timestamp}`;
+    }
+
+    let fileName = fileBase + extension;
+
+    const filePath = path.join(outputDir, fileName);
+
+    // ─────────────────────────────
+    // 3. HANDLE DUPLICATES
+    // ─────────────────────────────
+    let finalPath = filePath;
+
+    if (!override && fsSync.existsSync(filePath)) {
+      let i = 1;
+      while (
+        fsSync.existsSync(
+          path.join(outputDir, `${fileBase}_${i}${extension}`)
+        )
+      ) {
+        i++;
+      }
+
+      finalPath = path.join(outputDir, `${fileBase}_${i}${extension}`);
+    }
+
+    // ─────────────────────────────
+    // 4. BUILD BACKUP
+    // ─────────────────────────────
+    const tables = await listTables();
+    const dump = [];
+
+    dump.push(`-- MWALAJS BACKUP`);
+    dump.push(`-- DB: ${dbName}`);
+    dump.push(`-- TYPE: ${dialect}`);
+    dump.push(`-- DATE: ${new Date().toISOString()}`);
+    dump.push('\n');
+
+    for (const table of tables) {
+      const qi = sequelize.getQueryInterface();
+      const quoted = qi.quoteIdentifier(table);
+
+      if (dialect === 'mysql') {
+        const create = await sequelize.query(
+          `SHOW CREATE TABLE ${quoted}`,
+          { type: sequelize.QueryTypes.SELECT }
+        );
+
+        const createSQL =
+          create[0]['Create Table'] || Object.values(create[0])[1];
+
+        dump.push(`DROP TABLE IF EXISTS \`${table}\`;`);
+        dump.push(createSQL + ';\n');
+      }
+
+      if (includeData) {
+        const rows = await rawQuery(`SELECT * FROM ${quoted}`);
+
+        if (rows.length > 0) {
+          const cols = Object.keys(rows[0])
+            .map(c => `\`${c}\``)
+            .join(',');
+
+          for (const row of rows) {
+            const vals = Object.values(row).map(v => {
+              if (v === null) return 'NULL';
+              if (typeof v === 'string') return `'${v.replace(/'/g, "''")}'`;
+              return v;
+            });
+
+            dump.push(
+              `INSERT INTO \`${table}\` (${cols}) VALUES (${vals.join(',')});`
+            );
+          }
+        }
+      }
+
+      dump.push('\n');
+    }
+
+    // ─────────────────────────────
+    // 5. WRITE FILE
+    // ─────────────────────────────
+    await fs.writeFile(finalPath, dump.join('\n'), 'utf-8');
+
+    logSuccess(`Database backup created → ${finalPath}`);
+    return finalPath;
+
+  } catch (err) {
+    logError('Backup failed', err);
+    throw err;
+  }
+}
+
+export async function restoreDatabase(filePath, options = {}) {
+  const { confirm = true } = options;
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    const content = await fs.readFile(filePath, 'utf-8');
+
+    const readlineSync = (await import('readline-sync')).default;
+
+    if (confirm) {
+      console.warn('⚠️ You are about to RESTORE database (will overwrite data)');
+      const ok = readlineSync.keyInYNStrict('Continue restore?');
+
+      if (!ok) throw new Error('Restore cancelled');
+    }
+
+    const statements = content
+      .replace(/--.*$/gm, '')
+      .split(/;\s*\n/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    let executed = 0;
+
+    for (const stmt of statements) {
+      await sequelize.query(stmt, {
+        transaction,
+        type: sequelize.QueryTypes.RAW,
+      });
+      executed++;
+    }
+
+    await transaction.commit();
+
+    logSuccess(`Database restored successfully (${executed} queries)`);
+
+  } catch (err) {
+    await transaction.rollback();
+    logError('Restore failed', err);
+    throw err;
+  }
+}
+
+export async function seedDatabase(seeds = []) {
+  try {
+    if (!Array.isArray(seeds)) {
+      throw new Error('Seeds must be an array');
+    }
+
+    let inserted = 0;
+
+    for (const seed of seeds) {
+      const { table, data } = seed;
+
+      if (!table || !data) continue;
+
+      const qi = sequelize.getQueryInterface();
+      const quoted = qi.quoteIdentifier(table);
+
+      for (const row of data) {
+        const cols = Object.keys(row)
+          .map(c => `\`${c}\``)
+          .join(',');
+
+        const vals = Object.values(row).map(v => {
+          if (v === null) return 'NULL';
+          if (typeof v === 'string') return `'${v.replace(/'/g, "''")}'`;
+          return v;
+        });
+
+        await sequelize.query(
+          `INSERT INTO ${quoted} (${cols}) VALUES (${vals.join(',')})`
+        );
+
+        inserted++;
+      }
+    }
+
+    logSuccess(`Seed completed → ${inserted} rows inserted`);
+
+  } catch (err) {
+    logError('Seed failed', err);
+    throw err;
+  }
+}
+
 // Export everything
 export default {
   listTables,
@@ -855,5 +1072,8 @@ export default {
   importCsvToTable,
   importJsonToTable,
   importSqlToTable,
+  backupDatabase,
+  restoreDatabase,
+  seedDatabase,
   // ... add more as needed
 };

@@ -76,159 +76,89 @@ const args = process.argv.slice(2);
 const command = args[0]?.toLowerCase();
 
 
+
 if (!command || command === 'help' || command === 'h') {
-  console.clear();
-
-  const reset  = '\x1b[0m';
-  const bright = '\x1b[1m';
-  const cyan   = '\x1b[36m';
-  const yellow = '\x1b[33m';
-  const green  = '\x1b[32m';
-  const blue   = '\x1b[34m';
-  const magenta= '\x1b[35m';
-  const red    = '\x1b[31m';
-  const gray   = '\x1b[90m';
-
-  const line   = `${gray}────────────────────────────────────────────────────────────${reset}`;
-  const boxTop = `${bright}╔════════════════════════════════════════════════════════════╗${reset}`;
-  const boxBot = `${bright}╚════════════════════════════════════════════════════════════╝${reset}`;
-
   console.log(`
+${colors.bright}╔════════════════════════════════════════════════════╗${colors.reset}
+${colors.bright}║             MwalaJS CLI v${pkg.version}            ║${colors.reset}
+${colors.bright}╚════════════════════════════════════════════════════╝${colors.reset}
 
-${bright}╔════════════════════════════════════════════════════╗${reset}
-${bright}║             MwalaJS CLI v${pkg.version}            ║${reset}
-${bright}╚════════════════════════════════════════════════════╝${reset}
+${colors.cyan}General Commands:${colors.reset}
+  mwala -v | --version           → Show version
+  mwala help | h                → Show this help
 
-${cyan}
+${colors.cyan}Project Management:${colors.reset}
+  mwala create-project          → Create new project
+  mwala init                    → Initialize MwalaJS in current directory
 
-███╗   ███╗ ██╗    ██╗ █████╗ ██╗      █████╗        ██╗ ███████╗
-████╗ ████║ ██║    ██║██╔══██╗██║     ██╔══██╗       ██║██╔════╝
-██╔████╔██║ ██║ █╗ ██║███████║██║     ███████║       ██║███████╗
-██║╚██╔╝██║ ██║███╗██║██╔══██║██║     ██╔══██║  ██   ██║╚════██║
-██║ ╚═╝ ██║ ╚███╔███╔╝██║  ██║███████╗██║  ██║  ╚█████╔╝███████║
-╚═╝     ╚═╝  ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚════╝ ╚══════╝
+${colors.cyan}Run Application:${colors.reset}
+  mwala serve | app.mjs         → Start server (runs app.mjs)
 
-${reset}
+${colors.cyan}Code Generation:${colors.reset}
+  mwala generate model <name>
+  mwala generate controller <name>
+  mwala generate route <name>
+  mwala generate view <name>
+  mwala generate midware <name>
 
-${bright}MwalaJS CLI v${pkg.version}${reset}
-${gray}Build • Automate • Deploy • Learn • Scale${reset}
+${colors.cyan}══════════════════════════════════════════════════════${colors.reset}
+${colors.cyan}                  DATABASE COMMANDS                   ${colors.reset}
+${colors.cyan}══════════════════════════════════════════════════════${colors.reset}
 
-${line}
+${colors.blue}Setup & Config:${colors.reset}
+  mwala create-db               → Create / connect database (interactive)
+  mwala db:config              → Reconfigure database settings
 
-${boxTop}
-${bright}║               CORE COMMANDS                                ║${reset}
-${boxBot}
+${colors.blue}Table Management:${colors.reset}
+  mwala db:table list
+  mwala db:table create <name>
+  mwala db:table drop <name>
+  mwala db:table truncate <name>
+  mwala db:table rename <old> <new>
+  mwala db:table copy <src> <dest>
+  mwala db:table exists <name>
+  mwala db:table describe <name>
+  mwala db:table count <name>
 
-  ${yellow}mwala -v | --version${reset}     Show version
-  ${yellow}mwala help | h${reset}           Show this help menu
-  ${yellow}mwala init${reset}               Initialize a new project
-  ${yellow}mwala serve${reset}              Run app locally
+${colors.blue}Migrations:${colors.reset}
+  mwala migrate all
+  mwala rollback last
+  mwala rollback all            → ⚠️ drops all tables (dangerous)
 
-${line}
+${colors.blue}Data Import / Export:${colors.reset}
+  mwala db:import <file.csv|json|sql> <table>
+  mwala db:export <table> <file.csv|json|sql>
 
-${boxTop}
-${bright}║             PROJECT SCAFFOLDING (🏗️)                      ║${reset}
-${boxBot}
+  Examples:
+    mwala db:import users.csv users
+    mwala db:import users.json users
+    mwala db:import backup.sql users
 
-  ${green}mwala create-project${reset}
-  ${green}mwala generate model${reset}      <name>
-  ${green}mwala generate controller${reset} <name>
-  ${green}mwala generate route${reset}      <name>
-  ${green}mwala generate view${reset}       <name>
-  ${green}mwala generate middleware${reset} <name>
+${colors.blue}Backup & Restore:${colors.reset}
+  mwala db:seed <file.js>
+  mwala db:backup
+  mwala db:restore <file.sql>
 
-${line}
+${colors.blue}Maintenance & Stats:${colors.reset}
+  mwala db:size
+  mwala db:indexes <table>
+  mwala db:analyze <table>      → PostgreSQL only
+  mwala db:reindex <table>
+  mwala db:vacuum
+  mwala db:connections
+  mwala db:kill-connections     → ⚠️ Dangerous – admin only
+  mwala db:drop-all-tables      → ⚠️ Extremely dangerous
 
-${boxTop}
-${bright}║                  DATABASE CORE (🗄️)                        ║${reset}
-${boxBot}
+${colors.yellow}Tips:${colors.reset}
+  - CSV/JSON = insert data only
+  - SQL = schema + data control
+  - Use --truncate for clean import (if supported)
 
-  ${blue}mwala create-db${reset}
-  ${blue}mwala db:config${reset}
-
-  ${gray}→ Tables:${reset}
-    ${blue}mwala db:table list${reset}
-    ${blue}mwala db:table create${reset} <name>
-    ${blue}mwala db:table drop${reset}   <name>
-    ${blue}mwala db:table rename${reset} <old> <new>
-    ${blue}mwala db:table copy${reset}   <src> <dest>
-
-${line}
-
-${boxTop}
-${bright}║               MIGRATION SYSTEM                         ║${reset}
-${boxBot}
-
-  ${magenta}mwala migrate all${reset}
-  ${magenta}mwala rollback last${reset}
-  ${magenta}mwala rollback all${reset}    ${red}⚠ destructive operation${reset}
-
-${line}
-
-${boxTop}
-${bright}║                   DATA FLOW (📦)                           ║${reset}
-${boxBot}
-
-  ${cyan}Import:${reset}
-    ${cyan}mwala db:import${reset} users.csv users
-    ${cyan}mwala db:import${reset} backup.sql users
-
-  ${cyan}Export:${reset}
-    ${cyan}mwala db:export${reset} users users.json
-
-  ${gray}Tip:${reset} CSV/JSON = data only • SQL = structure + data
-
-${line}
-
-${boxTop}
-${bright}║                BACKUP & SEEDING                        ║${reset}
-${boxBot}
-
-  ${red}mwala db:seed${reset} <file.js>
-  ${red}mwala db:backup${reset} [custom-name]
-  ${red}mwala db:restore${reset} <file.sql>
-
-  Example:
-    ${red}mwala db:backup${reset} prod-2026-03-21
-
-${line}
-
-${boxTop}
-${bright}║               MAINTENANCE TOOLS (🛠)                       ║${reset}
-${boxBot}
-
-  ${yellow}mwala db:size${reset}
-  ${yellow}mwala db:indexes${reset} <table>
-  ${yellow}mwala db:analyze${reset} <table>
-  ${yellow}mwala db:vacuum${reset}
-  ${yellow}mwala db:connections${reset}
-  ${yellow}mwala db:kill-connections${reset}   ${red}⚠ admin only${reset}
-
-${line}
-
-${boxTop}
-${bright}║                  DEVELOPER NOTES                        ║${reset}
-${boxBot}
-
-  • Use meaningful backup names (date + description)
-  • Avoid rollback all in production
-  • Prefer SQL for full migrations
-  • Use CSV/JSON for fast data sync
-
-${line}
-
-${bright} MWALAJS — Control. Simplicity. Power.${reset}
-${gray}“Built for developers who hate complexity”${reset}
-
-${line}
-
-${green}Happy Coding — Build like a pro, no stress!${reset}
-
+Use: mwala <command> [options]
   `);
 
   process.exit(0);
 }
-
 
 // ────────────────────────────────────────────────
 // Helper – run async function with error handling
