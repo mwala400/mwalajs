@@ -4,9 +4,12 @@ import readline from 'readline';
 // import { sequelize } from './config/createTablesetdb.mjs';
 
 
-const { sequelize } = await import(
-  new URL('../config/createTablesetdb.mjs', import.meta.url)
-);
+// const { sequelize } = await import(
+//   new URL('../config/createTablesetdb.mjs', import.meta.url)
+// );
+const sequelize = (await import(
+  new URL('./config/createTablesetdb.mjs', import.meta.url)
+)).sequelize;
 
 import { DataTypes } from 'sequelize';
 
@@ -43,8 +46,10 @@ export const createTable = async (tableName) => {
   const migrationFile = path.join(migrationsDir, `${timestamp}_create_${tableName}.mjs`);
 
   const migrationTemplate = `
-  
-import { sequelize } from 'mwalajs/config/createTablesetdb.mjs';
+
+const sequelize = (await import(
+  new URL('./config/createTablesetdb.mjs', import.meta.url)
+)).sequelize;
 import { DataTypes } from 'sequelize';
 
 export const up = async () => {
