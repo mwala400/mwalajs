@@ -7,10 +7,11 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import readlineSync from 'readline-sync';
 
 //(baada ya imports zingine)
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const pkg = require('../../package.json');  // rudi nyuma mara 2 kutoka bin/ → root
+import pkg from "../package.json" with { type: "json" };
 
+// const pkg = JSON.parse(
+//   fs.readFileSync(new URL('../package.json', import.meta.url))
+// );
 
 // Colors for better UX
 const colors = {
@@ -45,7 +46,7 @@ try {
     import(pathToFileURL(path.join(__dirname, '../runMigrations.mjs')).href),
     import(pathToFileURL(path.join(__dirname, '../setupMwalajs.mjs')).href),
     import(pathToFileURL(path.join(__dirname, '../createProject.mjs')).href),
-    import(pathToFileURL(path.join(__dirname, '../dbUtils.mjs')).href),
+    // import(pathToFileURL(path.join(__dirname, '../dbUtils.mjs')).href),
   ]).then(([dbCfg, migrations, setup, proj, dbUtils]) => ({
     ...dbCfg,
     ...migrations,
