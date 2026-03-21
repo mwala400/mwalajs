@@ -5,6 +5,7 @@ git commit -m "fix: CLI return bug + improvements"
 
 #npm
 npm login
+npm version patch 
 npm publish --access public  
 
 
