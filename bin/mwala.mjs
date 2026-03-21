@@ -96,6 +96,7 @@ const {
 const args = process.argv.slice(2);
 const command = args[0]?.toLowerCase();
 
+
 if (!command || command === 'help' || command === 'h') {
   console.log(`
 ${colors.bright}╔════════════════════════════════════════════════════╗${colors.reset}
@@ -103,15 +104,15 @@ ${colors.bright}║             MwalaJS CLI v${pkg.version}            ║${colo
 ${colors.bright}╚════════════════════════════════════════════════════╝${colors.reset}
 
 ${colors.cyan}General Commands:${colors.reset}
-  mwala -v  --version            → Show version
-  mwala help | h                 → Show this help
+  mwala -v | --version           → Show version
+  mwala help | h                → Show this help
 
 ${colors.cyan}Project Management:${colors.reset}
-  mwala create-project           → Create new project
-  mwala init                     → Initialize MwalaJS in current directory
+  mwala create-project          → Create new project
+  mwala init                    → Initialize MwalaJS in current directory
 
 ${colors.cyan}Run Application:${colors.reset}
-  mwala serve | app.mjs          → Start server (runs app.mjs)
+  mwala serve | app.mjs         → Start server (runs app.mjs)
 
 ${colors.cyan}Code Generation:${colors.reset}
   mwala generate model <name>
@@ -125,8 +126,8 @@ ${colors.cyan}                  DATABASE COMMANDS                   ${colors.res
 ${colors.cyan}══════════════════════════════════════════════════════${colors.reset}
 
 ${colors.blue}Setup & Config:${colors.reset}
-  mwala create-db                → Create / connect database (interactive)
-  mwala db:config                → Reconfigure database settings
+  mwala create-db               → Create / connect database (interactive)
+  mwala db:config              → Reconfigure database settings
 
 ${colors.blue}Table Management:${colors.reset}
   mwala db:table list
@@ -142,27 +143,40 @@ ${colors.blue}Table Management:${colors.reset}
 ${colors.blue}Migrations:${colors.reset}
   mwala migrate all
   mwala rollback last
-  mwala rollback all             → (drops all tables – dangerous)
+  mwala rollback all            → ⚠️ drops all tables (dangerous)
 
-${colors.blue}Data & Backup:${colors.reset}
+${colors.blue}Data Import / Export:${colors.reset}
+  mwala db:import <file.csv|json|sql> <table>
+  mwala db:export <table> <file.csv|json|sql>
+
+  Examples:
+    mwala db:import users.csv users
+    mwala db:import users.json users
+    mwala db:import backup.sql users
+
+${colors.blue}Backup & Restore:${colors.reset}
   mwala db:seed <file.js>
   mwala db:backup
   mwala db:restore <file.sql>
-  mwala db:export <table> <file.csv>
-  mwala db:import <file.csv> <table>
 
 ${colors.blue}Maintenance & Stats:${colors.reset}
   mwala db:size
   mwala db:indexes <table>
-  mwala db:analyze <table>       → PostgreSQL only
+  mwala db:analyze <table>      → PostgreSQL only
   mwala db:reindex <table>
   mwala db:vacuum
   mwala db:connections
-  mwala db:kill-connections      → Dangerous – admin only
-  mwala db:drop-all-tables       → ⚠️ Extremely dangerous
+  mwala db:kill-connections     → ⚠️ Dangerous – admin only
+  mwala db:drop-all-tables      → ⚠️ Extremely dangerous
+
+${colors.yellow}Tips:${colors.reset}
+  - CSV/JSON = insert data only
+  - SQL = schema + data control
+  - Use --truncate for clean import (if supported)
 
 Use: mwala <command> [options]
   `);
+
   process.exit(0);
 }
 
