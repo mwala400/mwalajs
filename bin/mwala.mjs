@@ -38,8 +38,8 @@ const __dirname = path.dirname(__filename);
 // Dynamic imports with error handling
 // ────────────────────────────────────────────────
 
-
 let imports = {};
+let setupMwalajs, createProject, dropAllTables, getDbConnection;
 
 try {
   const [
@@ -56,22 +56,28 @@ try {
     import(pathToFileURL(path.join(__dirname, '../config/dbUtils.mjs')).href),
   ]);
 
-  // 🔥 FIX: handle default export OR named export safely
-const normalize = (mod) => mod?.default ?? mod ?? {};
+  const normalize = (mod) => mod?.default ?? mod ?? {};
 
-imports = {
-  ...normalize(dbCfg),
-  ...normalize(migrations),
-  ...normalize(setup),
-  ...normalize(proj),
-  ...normalize(dbUtilsRaw),
-};
+  imports = {
+    ...normalize(dbCfg),
+    ...normalize(migrations),
+    ...normalize(setup),
+    ...normalize(proj),
+    ...normalize(dbUtilsRaw),
+  };
+
+  // 🔥 IMPORTANT FIX
+  ({
+    setupMwalajs,
+    createProject,
+    dropAllTables,
+    getDbConnection
+  } = imports);
 
 } catch (err) {
   error(`Failed to load required modules:\n${err.stack || err.message}`);
   process.exit(1);
 }
-
 const args = process.argv.slice(2);
 const command = args[0]?.toLowerCase();
 
