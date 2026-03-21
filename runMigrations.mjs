@@ -1,7 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
-import { sequelize } from './config/createTablesetdb.mjs';
+// import { sequelize } from './config/createTablesetdb.mjs';
+
+
+const { sequelize } = await import(
+  new URL('../config/createTablesetdb.mjs', import.meta.url)
+);
+
 import { DataTypes } from 'sequelize';
 
 // Define directory for migrations
@@ -37,7 +43,8 @@ export const createTable = async (tableName) => {
   const migrationFile = path.join(migrationsDir, `${timestamp}_create_${tableName}.mjs`);
 
   const migrationTemplate = `
-import { sequelize } from '../config/createTablesetdb.mjs';
+  
+import { sequelize } from 'mwalajs/config/createTablesetdb.mjs';
 import { DataTypes } from 'sequelize';
 
 export const up = async () => {
