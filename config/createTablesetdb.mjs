@@ -1,3 +1,6 @@
+// createTablesetdb.mjs
+// This file is responsible for setting up the database connection using Sequelize for SQL databases or Mongoose for MongoDB based on the configuration in the .env file. It exports the necessary database connection objects that can be used across the app, including in migration files and other database-related operations.
+
 import Sequelize from 'sequelize';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';

@@ -46,7 +46,7 @@ try {
     import(pathToFileURL(path.join(__dirname, '../runMigrations.mjs')).href),
     import(pathToFileURL(path.join(__dirname, '../setupMwalajs.mjs')).href),
     import(pathToFileURL(path.join(__dirname, '../createProject.mjs')).href),
-    // import(pathToFileURL(path.join(__dirname, '../dbUtils.mjs')).href),
+    import(pathToFileURL(path.join(__dirname, '../config/dbUtils.mjs')).href),
   ]).then(([dbCfg, migrations, setup, proj, dbUtils]) => ({
     ...dbCfg,
     ...migrations,
@@ -78,8 +78,12 @@ const {
   listIndexes,
   dropAllTables,
   copyTable,
-  exportTableToCsv,
+ exportTableToCsv,
+  exportTableToJson,
+  exportTableToSql,
   importCsvToTable,
+  importJsonToTable,
+  importSqlToTable,
   countRows,
   vacuumDatabase,
   analyzeTable,
@@ -358,15 +362,57 @@ function runSafeSync(fn, successMsg = 'Operation completed', errorPrefix = 'Oper
         await runSafe(() => restoreDatabase(args[1]), 'Database restored');
         break;
 
-      case 'db:export':
-        if (!args[1] || !args[2]) return error('Usage: db:export <table> <file.csv>');
-        await runSafe(() => exportTableToCsv(args[1], args[2]), 'Table exported to CSV');
-        break;
+   case 'db:export': {
+  if (!args[1] || !args[2]) {
+    return error('Usage: db:export <table> <file.(csv|json|sql)>');
+  }
 
-      case 'db:import':
-        if (!args[1] || !args[2]) return error('Usage: db:import <file.csv> <table>');
-        await runSafe(() => importCsvToTable(args[1], args[2]), 'CSV imported');
-        break;
+  const table = args[1];
+  const file = args[2];
+  const ext = path.extname(file).toLowerCase();
+
+  if (ext === '.csv') {
+    await runSafe(() => exportTableToCsv(table, file), 'Table exported to CSV');
+  } 
+  else if (ext === '.json') {
+    await runSafe(() => exportTableToJson(table, file), 'Table exported to JSON');
+  } 
+  else if (ext === '.sql') {
+    await runSafe(() => exportTableToSql(table, file), 'Table exported to SQL');
+  } 
+  else {
+    error('Unsupported file type. Use .csv, .json, or .sql');
+  }
+
+  break;
+}
+
+
+    case 'db:import': {
+  if (!args[1] || !args[2]) {
+    return error('Usage: db:import <file.(csv|json|sql)> <table>');
+  }
+
+  const file = args[1];
+  const table = args[2];
+  const ext = path.extname(file).toLowerCase();
+
+  if (ext === '.csv') {
+    await runSafe(() => importCsvToTable(file, table), 'CSV imported');
+  } 
+  else if (ext === '.json') {
+    await runSafe(() => importJsonToTable(file, table), 'JSON imported');
+  } 
+  else if (ext === '.sql') {
+    await runSafe(() => importSqlToTable(file), 'SQL imported');
+  } 
+  else {
+    error('Unsupported file type. Use .csv, .json, or .sql');
+  }
+
+  break;
+}
+
 
       case 'db:size':
         await runSafe(showDatabaseSize, 'Database size shown');

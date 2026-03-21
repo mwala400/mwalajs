@@ -1,3 +1,5 @@
+// createDatabase.mjs
+// This file is responsible for creating the database based on the configuration provided by the user. It will be used during the setup process to create the database before any tables or collections are created. This file can be imported in setupMwalajs.mjs to run the database creation logic as part of the setup process.
 import fs from 'fs';
 import readlineSync from 'readline-sync';
 import mysql from 'mysql2/promise';
