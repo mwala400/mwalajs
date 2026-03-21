@@ -1,14 +1,14 @@
 {
   "name": "mwalajs",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "MwalaJS Framework CLI Tool and Web Framework for Backend and Frontend Development.",
   "type": "module",
   "main": "app.mjs",
- "exports": {
-  ".": {
-    "import": "./index.mjs"
-  }
-},
+  "exports": {
+    ".": {
+      "import": "./index.mjs"
+    }
+  },
   "bin": {
     "mwala": "bin/mwala.mjs"
   },
