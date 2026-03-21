@@ -39,7 +39,24 @@ const __dirname = path.dirname(__filename);
 // ────────────────────────────────────────────────
 
 let imports = {};
-let setupMwalajs, createProject, dropAllTables, getDbConnection;
+// let setupMwalajs, createProject, dropAllTables, getDbConnection;
+let {
+  setupMwalajs,
+  createProject,
+  dropAllTables,
+  getDbConnection,
+  listTables,
+  createTable,
+  dropTable,
+  migrateAll,
+  rollbackLastMigration,
+showDatabaseSize,
+  listIndexes,
+  analyzeTable,
+  vacuumDatabase,
+  showConnections,
+  killConnections,
+} = imports;
 
 try {
   const [
@@ -48,6 +65,7 @@ try {
     setup,
     proj,
     dbUtilsRaw,
+    maintenance,
   ] = await Promise.all([
     import(pathToFileURL(path.join(__dirname, '../config/createdatabase.mjs')).href),
     import(pathToFileURL(path.join(__dirname, '../runMigrations.mjs')).href),
@@ -64,16 +82,31 @@ try {
     ...normalize(setup),
     ...normalize(proj),
     ...normalize(dbUtilsRaw),
+    ...normalize(maintenance),     // ← important
   };
 
   // 🔥 IMPORTANT FIX
-  ({
-    setupMwalajs,
-    createProject,
-    dropAllTables,
-    getDbConnection
-  } = imports);
+({
+  setupMwalajs,
+  createProject,
+  dropAllTables,
+  getDbConnection,
+  listTables,
+  createTable,
+  dropTable,
+  migrateAll,
+  rollbackLastMigration,
+  // ongeza hizi zingine ukizihitaji baadaye
+  showDatabaseSize,
+  listIndexes,
+  analyzeTable,
+  vacuumDatabase,
+  showConnections,
+  killConnections,
+  // n.k.
+} = imports);
 
+  
 } catch (err) {
   error(`Failed to load required modules:\n${err.stack || err.message}`);
   process.exit(1);
@@ -596,38 +629,67 @@ case 'db:restore': {
 }
 
 
+      // case 'db:size':
+      //   await runSafe(showDatabaseSize, 'Database size shown');
+      //   break;
+
+      // case 'db:indexes':
+      //   if (!args[1]) return error('Table name required');
+      //   await runSafe(() => listIndexes(args[1]), `Indexes for ${args[1]}`);
+      //   break;
+
+      // case 'db:analyze':
+      //   if (!args[1]) return error('Table name required');
+      //   await runSafe(() => analyzeTable(args[1]), `Table ${args[1]} analyzed`);
+      //   break;
+
+      // case 'db:reindex':
+      //   if (!args[1]) return error('Table name required');
+      //   await runSafe(() => reindexTable(args[1]), `Table ${args[1]} reindexed`);
+      //   break;
+
+      // case 'db:vacuum':
+      //   await runSafe(vacuumDatabase, 'Database vacuumed');
+      //   break;
+
+      // case 'db:connections':
+      //   await runSafe(showConnections, 'Active connections shown');
+      //   break;
+
+
       case 'db:size':
-        await runSafe(showDatabaseSize, 'Database size shown');
-        break;
+  await runSafe(() => imports.showDatabaseSize(), 'Database size shown');
+  break;
 
-      case 'db:indexes':
-        if (!args[1]) return error('Table name required');
-        await runSafe(() => listIndexes(args[1]), `Indexes for ${args[1]}`);
-        break;
+case 'db:indexes':
+  if (!args[1]) return error('Table name required: mwala db:indexes <table>');
+  await runSafe(() => imports.listIndexes(args[1]), `Indexes for ${args[1]}`);
+  break;
 
-      case 'db:analyze':
-        if (!args[1]) return error('Table name required');
-        await runSafe(() => analyzeTable(args[1]), `Table ${args[1]} analyzed`);
-        break;
+case 'db:analyze':
+  if (!args[1]) return error('Table name required');
+  await runSafe(() => imports.analyzeTable(args[1]), `Table ${args[1]} analyzed`);
+  break;
 
-      case 'db:reindex':
-        if (!args[1]) return error('Table name required');
-        await runSafe(() => reindexTable(args[1]), `Table ${args[1]} reindexed`);
-        break;
+case 'db:vacuum':
+  await runSafe(() => imports.vacuumDatabase(), 'Database vacuumed');
+  break;
 
-      case 'db:vacuum':
-        await runSafe(vacuumDatabase, 'Database vacuumed');
-        break;
+case 'db:connections':
+  await runSafe(() => imports.showConnections(), 'Active connections shown');
+  break;
 
-      case 'db:connections':
-        await runSafe(showConnections, 'Active connections shown');
-        break;
+case 'db:kill-connections':
+  if (readlineSync.keyInYNStrict('⚠️ Kill ALL other database connections? (hatari!)')) {
+    await runSafe(() => imports.killConnections(), 'Other connections killed');
+  }
+  break;
 
-      case 'db:kill-connections':
-        if (readlineSync.keyInYNStrict('⚠️  Kill ALL other database connections?')) {
-          await runSafe(killConnections, 'Other connections killed');
-        }
-        break;
+      // case 'db:kill-connections':
+      //   if (readlineSync.keyInYNStrict('⚠️  Kill ALL other database connections?')) {
+      //     await runSafe(killConnections, 'Other connections killed');
+      //   }
+      //   break;
 
       case 'db:drop-all-tables':
         if (readlineSync.keyInYNStrict('⚠️⚠️  THIS WILL DROP **ALL** TABLES! Continue?')) {

@@ -1,3 +1,5 @@
+// runMigrations.mjs
+
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
@@ -134,6 +136,38 @@ export const listTables = async () => {
   }
 };
 
+
+export const dropAllTables = async () => {
+  try {
+    const tables = await sequelize.getQueryInterface().showAllTables();
+    
+    if (tables.length === 0) {
+      console.log('No tables exist in the database.');
+      return;
+    }
+
+    console.log(`Dropping ${tables.length} table(s): ${tables.join(', ')}`);
+
+    // Drop in reverse order to respect foreign key dependencies if any
+    for (const table of tables.reverse()) {
+      await sequelize.getQueryInterface().dropTable(table, { cascade: true });
+      console.log(`  Dropped: ${table}`);
+    }
+
+    // Clear the migration tracking file so future migrates start clean
+    fs.writeFileSync(migrationLog, JSON.stringify([]));
+    console.log('Migration log cleared – ready for fresh migrations.');
+
+  } catch (error) {
+    console.error('Error while dropping all tables:', error.message);
+    if (error.stack) console.error(error.stack);
+    throw error; // let runSafe show the full error
+  }
+};
+
+
+
+
 const askUser = (question) => {
   return new Promise((resolve) => {
     const rl = readline.createInterface({
@@ -145,4 +179,113 @@ const askUser = (question) => {
       resolve(answer);
     });
   });
+};
+
+
+
+// ────────────────────────────────────────────────
+// MAINTENANCE TOOLS (MariaDB / MySQL compatible)
+// ────────────────────────────────────────────────
+
+export const showDatabaseSize = async () => {
+  const dbName = sequelize.getDatabaseName(); // au tumia sequelize.config.database kama haifanyi kazi
+  const [results] = await sequelize.query(`
+    SELECT 
+      ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
+    FROM information_schema.tables 
+    WHERE table_schema = '${dbName}'
+  `);
+
+  const size = results[0]?.size_mb || '0.00';
+  console.log(`Database size: ${size} MB`);
+};
+
+export const listIndexes = async (tableName) => {
+  const dbName = sequelize.getDatabaseName();
+  const [results] = await sequelize.query(`
+    SHOW INDEXES FROM \`${tableName}\`
+  `);
+
+  if (results.length === 0) {
+    console.log(`Hakuna indexes kwenye table "${tableName}".`);
+    return;
+  }
+
+  console.log(`Indexes kwenye "${tableName}":`);
+  results.forEach(row => {
+    const unique = row.Non_unique === 0 ? 'UNIQUE' : 'NON-UNIQUE';
+    console.log(`  • ${row.Key_name.padEnd(35)} → ${unique} | Column: ${row.Column_name} | Type: ${row.Index_type}`);
+  });
+};
+
+export const analyzeTable = async (tableName) => {
+  await sequelize.query(`ANALYZE TABLE \`${tableName}\`;`);
+  console.log(`Table "${tableName}" ime-analyze (statistics zime-update).`);
+};
+
+export const vacuumDatabase = async () => {
+  // MySQL/MariaDB haina VACUUM kama PostgreSQL, lakini tunaweza optimize tables zote
+  const dbName = sequelize.getDatabaseName();
+  const [tables] = await sequelize.query(`
+    SELECT table_name 
+    FROM information_schema.tables 
+    WHERE table_schema = '${dbName}' 
+      AND table_type = 'BASE TABLE'
+  `);
+
+  if (tables.length === 0) {
+    console.log('Hakuna tables za ku-optimize.');
+    return;
+  }
+
+  console.log(`Optimizing ${tables.length} table(s)...`);
+  for (const row of tables) {
+    const table = row.table_name;
+    await sequelize.query(`OPTIMIZE TABLE \`${table}\`;`);
+    console.log(`  Optimized: ${table}`);
+  }
+  console.log('Optimization imekamilika (space reclaimed na stats updated).');
+};
+
+export const showConnections = async () => {
+  const [results] = await sequelize.query(`
+    SHOW PROCESSLIST
+  `);
+
+  const active = results.filter(row => row.Command !== 'Sleep' && row.Id !== 0); // exclude idle + our connection
+
+  if (active.length === 0) {
+    console.log('Hakuna connections zingine active (isipokuwa yako).');
+    return;
+  }
+
+  console.log(`Active connections (${active.length}):`);
+  active.forEach(r => {
+    const querySnippet = r.Info ? r.Info.substring(0, 60) + '...' : '(idle)';
+    console.log(`  ID ${r.Id} | User: ${r.User} | Host: ${r.Host} | State: ${r.State} | Query: ${querySnippet}`);
+  });
+};
+
+export const killConnections = async () => {
+  const [results] = await sequelize.query(`
+    SHOW PROCESSLIST
+  `);
+
+  const toKill = results.filter(row => row.Id !== 0 && row.Command !== 'Sleep'); // exclude our connection + idle
+
+  if (toKill.length === 0) {
+    console.log('Hakuna connections za ku-kill.');
+    return;
+  }
+
+  console.log(`Killing ${toKill.length} connection(s)...`);
+  for (const row of toKill) {
+    try {
+      await sequelize.query(`KILL ${row.Id};`);
+      console.log(`  Killed ID ${row.Id}`);
+    } catch (e) {
+      console.warn(`  Failed to kill ${row.Id}: ${e.message}`);
+    }
+  }
+  console.log('Kill operation imekamilika.');
 };
