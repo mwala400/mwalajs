@@ -1,44 +1,67 @@
-// createProject.mjs
+// createProject.mjs (ULTIMATE CROSS-PLATFORM VERSION)
+
 import fs from "fs-extra";
 import path from "path";
 import readline from "readline";
 import os from "os";
+import { fileURLToPath } from "url";
+
+/* =========================
+   SAFE PATH HELPERS
+========================= */
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
- * Get template source safely
+ * Detect best possible MwalaJS template path
+ * Works on ALL OS
  */
 function getMwalajsPath() {
   const envPath = process.env.MWALAJSPATH;
 
-  const defaultPaths = [
+  const possiblePaths = [
     envPath,
+    path.join(process.cwd(), "template"),
+    path.join(__dirname, "template"),
+    path.join(__dirname, "../template"),
+    path.join(__dirname, "../../template"),
     "C:\\Program Files\\mwalajs",
+    "C:\\mwalajs",
     "/usr/local/lib/mwalajs",
+    "/usr/lib/mwalajs",
     "/var/www/mwalajs",
-    path.join(process.cwd(), "template") // fallback local dev template
+    "/opt/mwalajs"
   ];
 
-  for (const p of defaultPaths) {
-    if (p && fs.existsSync(p)) return p;
+  for (const p of possiblePaths) {
+    if (p && fs.existsSync(p)) {
+      return fs.realpathSync(p);
+    }
   }
 
-  return null; // IMPORTANT: we will generate manual scaffold
+  return null;
 }
 
-/**
- * Ask CLI input
- */
-function ask(rl, q) {
-  return new Promise((resolve) => rl.question(q, (a) => resolve(a.trim())));
+/* =========================
+   CLI INPUT
+========================= */
+
+function ask(rl, question) {
+  return new Promise((resolve) => {
+    rl.question(question, (ans) => resolve(ans.trim()));
+  });
 }
 
-/**
- * Manual fallback template generator (VERY IMPORTANT FIX)
- */
+/* =========================
+   MANUAL TEMPLATE GENERATOR
+   (ALWAYS WORKS - FALLBACK)
+========================= */
+
 function createManualTemplate(target) {
-  console.log("⚠ No template found. Creating manual MwalaJS scaffold...");
+  console.log("\n⚠ No template found. Generating FULL MwalaJS scaffold...\n");
 
-  const structure = [
+  const dirs = [
     "controllers",
     "routes",
     "models",
@@ -47,16 +70,23 @@ function createManualTemplate(target) {
     "views/pages",
     "middlewares",
     "migrations",
+    "config",
+    "public",
     "public/css",
     "public/js",
-    "public/images"
+    "public/images",
+    "storage",
+    "logs"
   ];
 
-  structure.forEach((dir) => {
+  dirs.forEach((dir) => {
     fs.mkdirSync(path.join(target, dir), { recursive: true });
   });
 
-  // app.mjs
+  /* =========================
+     APP ENTRY
+  ========================= */
+
   fs.writeFileSync(
     path.join(target, "app.mjs"),
 `import mwalajs from 'mwalajs';
@@ -68,30 +98,43 @@ const __dirname = path.dirname(__filename);
 
 mwalajs.set('view engine', 'ejs');
 mwalajs.set('views', path.join(__dirname, 'views'));
+
 mwalajs.useStatic(path.join(__dirname, 'public'));
 
+/* ROUTES */
 mwalajs.get('/', (req, res) => {
-  res.render('pages/index', { title: 'MwalaJS App' });
+  res.render('pages/index', {
+    title: '🚀 MwalaJS Application Running'
+  });
 });
 
-const port = process.env.PORT || 3000;
-mwalajs.listen(port, () => {
-  console.log('🚀 Server running on http://localhost:' + port);
+/* SERVER */
+const PORT = process.env.PORT || 3000;
+mwalajs.listen(PORT, () => {
+  console.log(\`🚀 Server running on http://localhost:\${PORT}\`);
 });
 `
   );
 
-  // sample controller
+  /* =========================
+     CONTROLLER
+  ========================= */
+
   fs.writeFileSync(
     path.join(target, "controllers/homeController.mjs"),
 `export const homeController = {
-  getHome: (req, res) => {
-    res.render('pages/index', { title: 'Home Page' });
+  index: (req, res) => {
+    res.render('pages/index', {
+      title: 'Home Page'
+    });
   }
 };`
   );
 
-  // sample route
+  /* =========================
+     ROUTES
+  ========================= */
+
   fs.writeFileSync(
     path.join(target, "routes/homeRoutes.mjs"),
 `import mwalajs from 'mwalajs';
@@ -99,69 +142,126 @@ import { homeController } from '../controllers/homeController.mjs';
 
 const router = mwalajs.Router();
 
-router.get('/', homeController.getHome);
+router.get('/', homeController.index);
 
 export { router as homeRoutes };
 `
   );
 
-  // sample view
+  /* =========================
+     MODEL EXAMPLE
+  ========================= */
+
+  fs.writeFileSync(
+    path.join(target, "models/User.mjs"),
+`export class User {
+  constructor() {
+    this.table = "users";
+  }
+
+  // Add model logic here
+}
+`
+  );
+
+  /* =========================
+     VIEW
+  ========================= */
+
   fs.writeFileSync(
     path.join(target, "views/pages/index.ejs"),
 `<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
   <title><%= title %></title>
   <style>
-    body { font-family: Arial; background:#0f172a; color:white; text-align:center; padding:50px; }
-    .card { background:#1e293b; padding:20px; border-radius:12px; display:inline-block; }
+    body {
+      font-family: Arial;
+      background: linear-gradient(135deg,#0f172a,#1e293b);
+      color: white;
+      text-align: center;
+      padding: 60px;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.05);
+      padding: 30px;
+      border-radius: 16px;
+      display: inline-block;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      font-size: 40px;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>🚀 Welcome to MwalaJS</h1>
+  <div class="box">
+    <h1>🚀 MwalaJS Ready</h1>
     <p><%= title %></p>
   </div>
 </body>
 </html>`
   );
 
-  // package.json
+  /* =========================
+     PACKAGE JSON
+  ========================= */
+
   fs.writeFileSync(
     path.join(target, "package.json"),
 `{
   "name": "mwalajs-app",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "node app.mjs"
   },
   "dependencies": {
-    "mwalajs": "*"
+    "mwalajs": "*",
+    "ejs": "*"
   }
 }`
   );
 
+  /* =========================
+     README
+  ========================= */
+
   fs.writeFileSync(
     path.join(target, "README.md"),
-`# MwalaJS App
+`# 🚀 MwalaJS Project
 
-Run:
+## Run project
+
 npm install
 npm start
+
+## Structure
+- MVC architecture
+- Controllers
+- Routes
+- Models
+- Views
 `
   );
 
-  console.log("✅ Manual template created successfully!");
+  console.log("✅ FULL manual scaffold created successfully!");
 }
 
-/**
- * Main project creator
- */
+/* =========================
+   MAIN PROJECT CREATOR
+========================= */
+
 export async function createProject(projectArg) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
+
+  let createdMode = "unknown";
 
   try {
     let projectName = projectArg?.trim();
@@ -171,7 +271,7 @@ export async function createProject(projectArg) {
     }
 
     if (!projectName) {
-      console.log("❌ Project name required");
+      console.log("❌ Project name is required");
       return;
     }
 
@@ -186,10 +286,12 @@ export async function createProject(projectArg) {
 
     const templatePath = getMwalajsPath();
 
-    if (!templatePath) {
-      createManualTemplate(target);
-    } else {
-      console.log("📦 Using template from:", templatePath);
+    /* =========================
+       TEMPLATE MODE
+    ========================= */
+
+    if (templatePath) {
+      console.log("📦 Template found:", templatePath);
 
       const items = [
         "controllers",
@@ -203,6 +305,8 @@ export async function createProject(projectArg) {
         "README.md"
       ];
 
+      let copied = 0;
+
       for (const item of items) {
         const src = path.join(templatePath, item);
         const dest = path.join(target, item);
@@ -210,19 +314,39 @@ export async function createProject(projectArg) {
         if (fs.existsSync(src)) {
           fs.copySync(src, dest);
           console.log("✔ copied:", item);
+          copied++;
         } else {
           console.log("⚠ missing:", item);
         }
       }
 
-      // fallback if empty project
-      if (!fs.existsSync(path.join(target, "app.mjs"))) {
+      if (copied === 0) {
+        console.log("⚠ Template empty → switching to manual mode...");
         createManualTemplate(target);
+        createdMode = "manual";
+      } else {
+        createdMode = "template";
       }
+
+    } else {
+      /* =========================
+         MANUAL MODE
+      ========================= */
+
+      createManualTemplate(target);
+      createdMode = "manual";
     }
 
-    console.log("\n🎉 Project created successfully!");
+    /* =========================
+       FINAL OUTPUT (NO FAKE SUCCESS)
+    ========================= */
+
+    console.log("\n============================");
+    console.log("🎉 PROJECT CREATED SUCCESSFULLY");
+    console.log("============================");
     console.log("📁 Path:", target);
+    console.log("⚙ Mode:", createdMode.toUpperCase());
+    console.log("============================\n");
 
   } catch (err) {
     console.error("❌ Create project failed:", err.message);
@@ -231,7 +355,10 @@ export async function createProject(projectArg) {
   }
 }
 
-// CLI support
+/* =========================
+   CLI EXECUTION
+========================= */
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   createProject(process.argv[2]);
 }
