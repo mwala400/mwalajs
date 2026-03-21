@@ -8,17 +8,45 @@ import dotenv from 'dotenv';
 
 const { Client } = pkg;
 
-// Function to reset the .env file before processing
-const resetEnvFile = () => {
+/* -----------------------------------------------------------
+   NEW FUNCTION: CREATE BACKUP OF .ENV BEFORE DELETE
+----------------------------------------------------------- */
+const backupEnvFile = () => {
   try {
-    fs.writeFileSync('.env', '', 'utf8'); // Empty the .env file
-    console.log(' Cleared .env file.');
+    if (!fs.existsSync('.env')) {
+      console.log(' ⚠️ No .env file found to backup.');
+      return;
+    }
+
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, '-'); // safe filename
+
+    const backupName = `.env.backup-${timestamp}`;
+
+    fs.copyFileSync('.env', backupName);
+
+    console.log(` 📦 Backup created: ${backupName}`);
   } catch (error) {
-    console.error(' Failed to clear .env file:', error.message);
+    console.error(' ❌ Failed to create .env backup:', error.message);
   }
 };
 
-// Function to write data to the .env file
+/* -----------------------------------------------------------
+   RESET ENV FILE
+----------------------------------------------------------- */
+const resetEnvFile = () => {
+  try {
+    fs.writeFileSync('.env', '', 'utf8');
+    console.log(' 🧹 Cleared .env file.');
+  } catch (error) {
+    console.error(' ❌ Failed to clear .env file:', error.message);
+  }
+};
+
+/* -----------------------------------------------------------
+   WRITE DATA TO .ENV
+----------------------------------------------------------- */
 const writeToEnv = (data) => {
   const envContent = Object.keys(data)
     .map(key => `${key}=${data[key]}`)
@@ -27,14 +55,20 @@ const writeToEnv = (data) => {
   fs.writeFileSync('.env', envContent, 'utf8');
 };
 
-
-// Function to create the database connection
+/* -----------------------------------------------------------
+   MAIN FUNCTION: CREATE/CONNECT DATABASE
+----------------------------------------------------------- */
 export const getDbConnection = async () => {
-  resetEnvFile(); // Clear .env file before proceeding
 
-  dotenv.config(); // Reload the (now empty) .env file
+  // 🔥 FIRST CREATE BACKUP
+  backupEnvFile();
 
-  // Supported database types
+  // 🔥 THEN CLEAR OLD ENV
+  resetEnvFile();
+
+  // Reload environment
+  dotenv.config();
+
   const supportedDbTypes = {
     mysql: 'mysql',
     my: 'mysql',
@@ -48,19 +82,21 @@ export const getDbConnection = async () => {
 
   let dbType;
   while (true) {
-    dbType = readlineSync.question('Enter the database type (mysql/my, postgresql/pg, mongodb/mn, sqlite/sq): ').toLowerCase();
+    dbType = readlineSync.question(
+      'Enter DB type (mysql/my, postgresql/pg, mongodb/mn, sqlite/sq): '
+    ).toLowerCase();
+
     if (supportedDbTypes[dbType]) {
-      dbType = supportedDbTypes[dbType]; // Normalize input
+      dbType = supportedDbTypes[dbType];
       break;
     } else {
-      console.log('❌ Invalid database type. Please enter a valid option.');
+      console.log(' ❌ Invalid database type. Try again.');
     }
   }
 
-  // Prompt for database details
   const dbName = readlineSync.question('Enter the database name: ').trim();
   if (!dbName) {
-    console.log(' Database name cannot be empty.');
+    console.log(' ❌ Database name cannot be empty.');
     return;
   }
 
@@ -69,64 +105,70 @@ export const getDbConnection = async () => {
   let dbPassword = '';
 
   if (dbType !== 'sqlite') {
-    dbHost = readlineSync.question('Enter the database host (default: localhost): ') || 'localhost';
-    dbUser = readlineSync.question('Enter the database user: ').trim();
-    dbPassword = readlineSync.question('Enter the database password: ', { hideEchoBack: true }).trim();
+    dbHost = readlineSync.question('Enter DB host (default: localhost): ') || 'localhost';
+    dbUser = readlineSync.question('Enter DB user: ').trim();
+    dbPassword = readlineSync.question('Enter DB password: ', { hideEchoBack: true }).trim();
   }
 
-  // Save valid details to .env
   const envData = {
     DB_TYPE: dbType,
     DB_NAME: dbName,
     DB_HOST: dbHost,
     DB_USER: dbUser,
-    DB_PASSWORD: dbPassword,
+    DB_PASSWORD: dbPassword
   };
 
   writeToEnv(envData);
-  console.log(' Database credentials saved to .env file.');
+  console.log('  Database credentials saved to .env');
 
   let connection;
 
   try {
+    /* -------------------- MYSQL -------------------- */
     if (dbType === 'mysql') {
       const tempConnection = await mysql.createConnection({
         host: dbHost,
         user: dbUser,
-        password: dbPassword,
+        password: dbPassword
       });
 
       const [rows] = await tempConnection.query(`SHOW DATABASES LIKE '${dbName}'`);
       if (rows.length === 0) {
         await tempConnection.query(`CREATE DATABASE \`${dbName}\``);
-        console.log(` MySQL Database "${dbName}" created successfully.`);
+        console.log(`  MySQL database "${dbName}" created.`);
       } else {
-        console.log(` MySQL Database "${dbName}" already exists.`);
+        console.log(`  MySQL database "${dbName}" already exists.`);
       }
 
       connection = await mysql.createConnection({
         host: dbHost,
         user: dbUser,
         password: dbPassword,
-        database: dbName,
+        database: dbName
       });
 
       await tempConnection.end();
-    } else if (dbType === 'postgresql') {
+    }
+
+    /* -------------------- POSTGRESQL -------------------- */
+    else if (dbType === 'postgresql') {
       const tempClient = new Client({
         host: dbHost,
         user: dbUser,
-        password: dbPassword,
+        password: dbPassword
       });
 
       await tempClient.connect();
 
-      const checkDb = await tempClient.query(`SELECT datname FROM pg_database WHERE datname = '${dbName}'`);
+      const checkDb = await tempClient.query(
+        `SELECT datname FROM pg_database WHERE datname = '${dbName}'`
+      );
+
       if (checkDb.rows.length === 0) {
         await tempClient.query(`CREATE DATABASE ${dbName}`);
-        console.log(` PostgreSQL Database "${dbName}" created successfully.`);
+        console.log(`  PostgreSQL database "${dbName}" created.`);
       } else {
-        console.log(` PostgreSQL Database "${dbName}" already exists.`);
+        console.log(`  PostgreSQL database "${dbName}" already exists.`);
       }
 
       await tempClient.end();
@@ -135,21 +177,26 @@ export const getDbConnection = async () => {
         host: dbHost,
         user: dbUser,
         password: dbPassword,
-        database: dbName,
+        database: dbName
       });
 
       await connection.connect();
-    } else if (dbType === 'mongodb') {
-      connection = await MongoClient.connect(`mongodb://${dbHost}:27017`);
-      console.log(` MongoDB connection to "${dbName}" established.`);
-    } else if (dbType === 'sqlite') {
-      connection = new sqlite3.Database(`./${dbName}.sqlite`);
-      console.log(` SQLite Database "${dbName}.sqlite" is ready.`);
-    } else {
-      throw new Error(` Unsupported DB type: ${dbType}`);
     }
+
+    /* -------------------- MONGODB -------------------- */
+    else if (dbType === 'mongodb') {
+      connection = await MongoClient.connect(`mongodb://${dbHost}:27017`);
+      console.log(`  MongoDB connected.`);
+    }
+
+    /* -------------------- SQLITE -------------------- */
+    else if (dbType === 'sqlite') {
+      connection = new sqlite3.Database(`./${dbName}.sqlite`);
+      console.log(`  SQLite database "${dbName}.sqlite" ready.`);
+    }
+
   } catch (error) {
-    console.error(` Failed to create database: ${error.message}`);
+    console.error(` ❌ Failed to create database: ${error.message}`);
     return;
   }
 

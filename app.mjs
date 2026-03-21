@@ -17,6 +17,10 @@ mwalajs.use('/', homeRoutes);
 mwalajs.use('/steps', homeRoutes);
 mwalajs.use('/about', homeRoutes);
 mwalajs.use('/welcome', homeRoutes);
+mwalajs.get('/mwalajs-framework-documentation', (req, res) => {
+  res.render('mwalajs-framework-documentation');
+});
+
 // Start server
 const port = process.env.PORT || 2025;
 mwalajs.listen(port, () => {
