@@ -295,6 +295,30 @@ ${boxBot}
   ${yellow}mwala db:connections${reset}
   ${yellow}mwala db:kill-connections${reset}   ${red}⚠ admin only${reset}
 
+  
+${line}
+
+${line}
+
+${boxTop}
+${bright}║           🧠 DB FORMATTER ENGINE (NEW CORE)               ║${reset}
+${boxBot}
+
+  ${green}mwala db:merge-separate <file.sql>${reset}
+     → Splits CREATE vs INSERT
+
+  ${green}mwala db:sql-to-mongo <file.sql>${reset}
+     → SQL → MongoDB JSON
+
+  ${green}mwala db:mongo-to-sql <file.json>${reset}
+     → MongoDB → SQL INSERTS
+
+  ${green}mwala db:convert <mysql|mongo|postgres> <file>${reset}
+     → Cross-database migration
+
+  ${green}mwala db:normalize xampp <file.sql>${reset}
+     → Fix broken XAMPP dumps
+
 ${line}
 
 ${boxTop}
@@ -306,6 +330,12 @@ ${boxBot}
   • Prefer SQL for full migrations
   • Use CSV/JSON for fast data sync
 
+  ||for formating db file engine commands:
+
+  • Always backup before conversion
+  • Use normalize for XAMPP dumps
+  • Use merge-separate for migration prep
+  • SQL = structure + data pipeline
 ${line}
 
 ${bright} MWALAJS — Control. Simplicity. Power.${reset}
@@ -714,20 +744,127 @@ case 'db:kill-connections':
       //   }
       //   break;
 
-      case 'db:drop-all-tables':
-        if (readlineSync.keyInYNStrict('⚠️⚠️  THIS WILL DROP **ALL** TABLES! Continue?')) {
-          await runSafe(dropAllTables, 'All tables dropped (irreversible!)');
-        }
-        break;
+case 'db:drop-all-tables':
+  if (readlineSync.keyInYNStrict('⚠️⚠️  THIS WILL DROP **ALL** TABLES! Continue?')) {
+    await runSafe(dropAllTables, 'All tables dropped (irreversible!)');
+  }
+  break;
 
-      default:
-        error(`Unknown command: ${command}`);
-        info('Run "mwala help" to see available commands.');
-        process.exit(1);
+// ─────────────────────────────────────────────
+// DB FILE ENGINE COMMANDS
+// ─────────────────────────────────────────────
+
+case 'db:merge-separate': {
+  const file = args[1];
+
+  if (!file) {
+    return error('Usage: mwala db:merge-separate <file.sql>');
+  }
+
+  const mod = await import('../config/dbfileformatterengine.mjs');
+
+  await runSafe(() => {
+    const result = mod.mergeSeparateSQL(file);
+    console.log("📦 OUTPUT GENERATED:");
+    console.log(result);
+  }, 'SQL separated successfully');
+
+  break;
+}
+
+case 'db:sql-to-mongo': {
+  const file = args[1];
+
+  if (!file) return error('Usage: mwala db:sql-to-mongo <file.sql>');
+
+  const mod = await import('../config/dbfileformatterengine.mjs');
+
+  const raw = fs.readFileSync(file, "utf8");
+  const inserts = raw.match(/INSERT INTO[\s\S]*?;/g) || [];
+
+  const result = mod.sqlToMongo(inserts);
+
+  const out = file.replace('.sql', '-mongo.json');
+  fs.writeFileSync(out, JSON.stringify(result, null, 2));
+
+  success(`Mongo file created: ${out}`);
+  break;
+}
+
+case 'db:mongo-to-sql': {
+  const file = args[1];
+
+  if (!file) return error('Usage: mwala db:mongo-to-sql <file.json>');
+
+  const mod = await import('../config/dbfileformatterengine.mjs');
+
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+
+  const sql = mod.mongoToSQL("collection", data);
+
+  const out = file.replace('.json', '-sql.sql');
+  fs.writeFileSync(out, sql.join("\n"));
+
+  success(`SQL file created: ${out}`);
+  break;
+}
+
+case 'db:convert': {
+  const type = args[1];
+  const file = args[2];
+
+  if (!type || !file) {
+    return error('Usage: mwala db:convert <postgres|mysql|mongo> <file.sql>');
+  }
+
+  const mod = await import('../config/dbfileformatterengine.mjs');
+
+  const raw = fs.readFileSync(file, "utf8");
+
+  let out = file.replace('.sql', `-${type}.sql`);
+
+  let result = raw;
+
+  if (type === "mysql") result = mod.xamppNormalize(raw);
+  if (type === "postgres") result = raw.replace(/AUTO_INCREMENT/gi, "SERIAL");
+  if (type === "mongo") result = JSON.stringify(mod.sqlToMongo(raw.match(/INSERT INTO[\s\S]*?;/g) || []));
+
+  fs.writeFileSync(out, result);
+
+  success(`Converted to ${type}: ${out}`);
+  break;
+}
+
+    case 'db:normalize': {
+      const type = args[1];
+      const file = args[2];
+
+      if (type !== "xampp") return error("Only xampp supported now");
+
+      const mod = await import('../config/dbfileformatterengine.mjs');
+
+      const raw = fs.readFileSync(file, "utf8");
+
+      const cleaned = mod.xamppNormalize(raw);
+
+      const out = file.replace('.sql', '-normalized.sql');
+      fs.writeFileSync(out, cleaned);
+
+      success(`Normalized file: ${out}`);
+      break;
     }
-  } catch (topLevelErr) {
+
+    default:
+      error(`Unknown command: ${command}`);
+      info('Run "mwala help" to see available commands.');
+      process.exit(1);
+  }
+} catch (topLevelErr) {
     error(`Unexpected CLI error: ${topLevelErr.message}`);
     console.error(colors.dim + topLevelErr.stack + colors.reset);
     process.exit(1);
   }
 })();
+
+
+
