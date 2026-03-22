@@ -267,11 +267,37 @@ ${boxBot}
 ${line}
 
   ${cyan}Export:${reset}
+    Exports table to specified format (CSV, JSON, SQL)
+    code structure: mwala db:export <table> <file.(csv|json|sql)>
     ${cyan}mwala db:export${reset} users users.json
     ${cyan}mwala db:export${reset} users users.csv
     ${cyan}mwala db:export${reset} users users.sql
 
   ${gray}Tip:${reset} CSV/JSON = data only • SQL = structure + data
+
+${line}
+
+${blue}mwala db:export-all csv${reset}
+   → Export all tables to CSV format
+
+${blue}mwala db:export-all json${reset}
+   → Export all tables to JSON format
+
+${blue}mwala db:export-all sql${reset}
+   → Export all tables to SQL dump
+
+${blue}mwala db:export-all all${reset}
+   → Export everything (CSV + JSON + SQL)
+
+${gray}Output:${reset}
+   exports/YYYY-MM-DD/
+   → Each table saved as separate file
+
+${gray}Auto feature:${reset}
+   ✔ Creates export folder by date
+   ✔ Exports all database tables
+   ✔ Auto-generates ZIP archive
+   ✔ Ready for backup / migration / sharing
 
 ${line}
 
