@@ -2,3 +2,7 @@
 node_modules/
 *.log
 dist/
+#ignore the secrets file
+#ignore the autodb-backup-secrets.json file config/autodb-backup-secrets.json and autodb-backup-secrets.json
+autodb-backup-secrets.json
+config/autodb-backup-secrets.json

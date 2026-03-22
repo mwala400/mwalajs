@@ -6,9 +6,15 @@ git commit -m "fix: CLI return bug + improvements"
 #npm
 npm login
 npm version patch 
+
+git add .
+
+git commit -m "fix: CLI return bug + improvements"
+
+
 npm publish --access public  
 
-
+ git push -u origin main
 
 to clone
 git clone https://github.com/mwala400/mwalajs.git
@@ -18,3 +24,5 @@ git init
 git add .
 
 git commit -m "fix: CLI return bug + improvements"
+
+ git push -u origin main

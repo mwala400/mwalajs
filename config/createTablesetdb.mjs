@@ -13,7 +13,7 @@ let sequelize;
 let mongooseConnection;
 
 /**
- * ✅ Fungua connection kulingana na aina ya database
+ *  Fungua connection kulingana na aina ya database
  */
 if (['mysql', 'postgres', 'sqlite'].includes(dbType)) {
   sequelize = new Sequelize({

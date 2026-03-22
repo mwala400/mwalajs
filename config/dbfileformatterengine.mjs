@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 /* ─────────────────────────────────────────────
-   🧠 UTIL: SAFE SQL SPLITTER
+    UTIL: SAFE SQL SPLITTER
 ───────────────────────────────────────────── */
 function splitSQL(raw) {
   return raw
@@ -14,7 +14,7 @@ function splitSQL(raw) {
 }
 
 /* ─────────────────────────────────────────────
-   🧠 DETECT DB TYPE
+    DETECT DB TYPE
 ───────────────────────────────────────────── */
 export function detectDatabase(sql) {
   const s = sql.toLowerCase();
@@ -27,7 +27,7 @@ export function detectDatabase(sql) {
 }
 
 /* ─────────────────────────────────────────────
-   🧠 CLASSIFY SQL
+    CLASSIFY SQL
 ───────────────────────────────────────────── */
 function classify(sql) {
   if (/^\s*create/i.test(sql)) return "create";
@@ -39,14 +39,14 @@ function classify(sql) {
 }
 
 /* ─────────────────────────────────────────────
-   🧠 EXTRACTORS
+    EXTRACTORS
 ───────────────────────────────────────────── */
 function extract(statements, type) {
   return statements.filter(s => classify(s) === type);
 }
 
 /* ─────────────────────────────────────────────
-   🧠 MYSQL/XAMPP NORMALIZER
+    MYSQL/XAMPP NORMALIZER
 ───────────────────────────────────────────── */
 export function xamppNormalize(sql) {
   return sql
@@ -57,7 +57,7 @@ export function xamppNormalize(sql) {
 }
 
 /* ─────────────────────────────────────────────
-   🧠 INSERT → JSON
+    INSERT → JSON
 ───────────────────────────────────────────── */
 function insertsToJSON(inserts) {
   return inserts.map(sql => {
@@ -71,14 +71,14 @@ function insertsToJSON(inserts) {
 }
 
 /* ─────────────────────────────────────────────
-   🧠 INSERT → CSV (SIMPLE FLATTEN)
+    INSERT → CSV (SIMPLE FLATTEN)
 ───────────────────────────────────────────── */
 function insertsToCSV(inserts) {
   return inserts.map(i => `"${i.replace(/"/g, '""')}"`).join("\n");
 }
 
 /* ─────────────────────────────────────────────
-   🧠 SQL → MONGO
+    SQL → MONGO
 ───────────────────────────────────────────── */
 export function sqlToMongo(inserts) {
   return inserts.map(sql => {
@@ -96,7 +96,7 @@ export function sqlToMongo(inserts) {
 }
 
 /* ─────────────────────────────────────────────
-   🧠 MONGO → SQL
+    MONGO → SQL
 ───────────────────────────────────────────── */
 export function mongoToSQL(collection, docs) {
   return docs.map(doc => {
@@ -110,7 +110,7 @@ export function mongoToSQL(collection, docs) {
 }
 
 /* ─────────────────────────────────────────────
-   🧠 MAIN ENGINE (ALL IN ONE)
+    MAIN ENGINE (ALL IN ONE)
 ───────────────────────────────────────────── */
 export function mergeSeparateSQL(filePath) {
   const raw = fs.readFileSync(filePath, "utf8");

@@ -648,7 +648,7 @@ export async function importCsvToTable(
           failCount++;
           if (!skipErrors) throw err;
 
-          console.warn(`⚠️ Skipped row: ${line}`);
+          console.warn(` Skipped row: ${line}`);
         }
       }
     }
@@ -656,7 +656,7 @@ export async function importCsvToTable(
     await transaction.commit();
 
     logSuccess(
-      `CSV imported → ${tableName} | ✅ ${successCount} rows | ❌ ${failCount} skipped`
+      `CSV imported → ${tableName} | ✅ ${successCount} rows |  ${failCount} skipped`
     );
 
   } catch (err) {
@@ -713,14 +713,14 @@ export async function importJsonToTable(
         failCount++;
         if (!skipErrors) throw err;
 
-        console.warn(`⚠️ Skipped row: ${JSON.stringify(row)}`);
+        console.warn(` Skipped row: ${JSON.stringify(row)}`);
       }
     }
 
     await transaction.commit();
 
     logSuccess(
-      `JSON imported → ${tableName} | ✅ ${successCount} rows | ❌ ${failCount} skipped`
+      `JSON imported → ${tableName} | ✅ ${successCount} rows |  ${failCount} skipped`
     );
 
   } catch (err) {
@@ -788,7 +788,7 @@ export async function importSqlToTable(filename, options = {}) {
       try {
         // OPTIONAL: skip CREATE TABLE if autoDrop disabled
         if (upper.startsWith('CREATE TABLE') && skipCreateTable) {
-          console.warn('⚠️ Skipped CREATE TABLE');
+          console.warn(' Skipped CREATE TABLE');
           skipped++;
           continue;
         }
@@ -800,7 +800,7 @@ export async function importSqlToTable(filename, options = {}) {
           if (tableMatch) {
             const table = tableMatch[1];
 
-            console.warn(`⚠️ Dropping existing table: ${table}`);
+            console.warn(` Dropping existing table: ${table}`);
 
             await sequelize.query(
               `DROP TABLE IF EXISTS \`${table}\``,
@@ -818,7 +818,7 @@ export async function importSqlToTable(filename, options = {}) {
 
       } catch (err) {
         skipped++;
-        console.warn(`⚠️ Failed statement: ${stmt.slice(0, 80)}`);
+        console.warn(` Failed statement: ${stmt.slice(0, 80)}`);
         console.warn(err.message);
       }
     }
@@ -976,7 +976,7 @@ export async function restoreDatabase(filePath, options = {}) {
     const readlineSync = (await import('readline-sync')).default;
 
     if (confirm) {
-      console.warn('⚠️ You are about to RESTORE database (will overwrite data)');
+      console.warn(' You are about to RESTORE database (will overwrite data)');
       const ok = readlineSync.keyInYNStrict('Continue restore?');
 
       if (!ok) throw new Error('Restore cancelled');
@@ -1048,6 +1048,257 @@ export async function seedDatabase(seeds = []) {
 
   } catch (err) {
     logError('Seed failed', err);
+    throw err;
+  }
+}
+
+
+
+
+async function getAllTablesSafe() {
+  const qi = sequelize.getQueryInterface();
+  let tables = await qi.showAllTables();
+
+  return tables.map(t =>
+    typeof t === 'object' ? Object.values(t)[0] : t
+  );
+}
+
+import os from 'os';
+import { execSync } from 'child_process';
+
+function resolveOutDir(dir) {
+  return path.isAbsolute(dir)
+    ? dir
+    : path.join(process.cwd(), dir);
+}
+
+function ensureDirInteractive(dir) {
+  const abs = resolveOutDir(dir);
+
+  if (fsSync.existsSync(abs)) {
+    const overwrite = readlineSync.keyInYNStrict(
+      ` Folder exists: ${abs}\nOverwrite contents?`
+    );
+
+    if (!overwrite) {
+      console.log(' Operation cancelled.');
+      process.exit(0);
+    }
+
+    // clean folder
+    fsSync.rmSync(abs, { recursive: true, force: true });
+  }
+
+  fsSync.mkdirSync(abs, { recursive: true });
+  return abs;
+}
+
+function zipDirectory(sourceDir, outPath) {
+  try {
+    const platform = os.platform();
+
+    if (platform === 'win32') {
+      // PowerShell zip
+      execSync(`powershell Compress-Archive -Path "${sourceDir}\\*" -DestinationPath "${outPath}" -Force`);
+    } else {
+      execSync(`zip -r "${outPath}" "${sourceDir}"`);
+    }
+
+    console.log(` ZIP created → ${outPath}`);
+  } catch (err) {
+    console.warn(' ZIP failed (zip not installed?)');
+  }
+}
+
+
+export async function exportAllTablesToJson(outputDir = './exports/json') {
+  try {
+    const tables = await getAllTablesSafe();
+    const absDir = ensureDirInteractive(outputDir);
+
+    console.log(`\ Exporting ${tables.length} tables → JSON\n`);
+
+    let index = 1;
+
+    for (const table of tables) {
+      const filePath = path.join(absDir, `${table}.json`);
+
+      const rows = await rawQuery(`SELECT * FROM \`${table}\``);
+
+      await fs.writeFile(filePath, JSON.stringify(rows, null, 2));
+
+      console.log(
+        ` [${index}/${tables.length}] ${table} → ${rows.length} rows`
+      );
+
+      index++;
+    }
+
+    zipDirectory(absDir, `${absDir}.zip`);
+
+    logSuccess(`JSON export complete → ${absDir}`);
+  } catch (err) {
+    logError('exportAllTablesToJson failed', err);
+    throw err;
+  }
+}
+
+export async function exportAllTablesToCsv(outputDir = './exports/csv') {
+  try {
+    const tables = await getAllTablesSafe();
+    const absDir = ensureDirInteractive(outputDir);
+
+    console.log(`\ Exporting ${tables.length} tables → CSV\n`);
+
+    let index = 1;
+
+    for (const table of tables) {
+      const filePath = path.join(absDir, `${table}.csv`);
+
+      const rows = await rawQuery(`SELECT * FROM \`${table}\``);
+
+      if (rows.length === 0) {
+        await fs.writeFile(filePath, '');
+      } else {
+        const headers = Object.keys(rows[0]);
+        const lines = [
+          headers.join(','),
+          ...rows.map(r =>
+            headers.map(h => JSON.stringify(r[h] ?? '')).join(',')
+          ),
+        ];
+
+        await fs.writeFile(filePath, lines.join('\n'));
+      }
+
+      console.log(
+        ` [${index}/${tables.length}] ${table} → ${rows.length} rows`
+      );
+
+      index++;
+    }
+
+    zipDirectory(absDir, `${absDir}.zip`);
+
+    logSuccess(`CSV export complete → ${absDir}`);
+  } catch (err) {
+    logError('exportAllTablesToCsv failed', err);
+    throw err;
+  }
+}
+
+// export async function exportAllTablesToSql(outputDir = './exports/sql') {
+//   try {
+//     const tables = await getAllTablesSafe();
+//     const absDir = ensureDirInteractive(outputDir);
+
+//     console.log(`\ Exporting ${tables.length} tables → SQL\n`);
+
+//     let index = 1;
+
+//     for (const table of tables) {
+//       const filePath = path.join(absDir, `${table}.sql`);
+
+//       await exportTableToSql(table, filePath);
+
+//       const count = await countRows(table);
+
+//       console.log(
+//         ` [${index}/${tables.length}] ${table} → ${count} rows`
+//       );
+
+//       index++;
+//     }
+
+//     zipDirectory(absDir, `${absDir}.zip`);
+
+//     logSuccess(`SQL export complete → ${absDir}`);
+//   } catch (err) {
+//     logError('exportAllTablesToSql failed', err);
+//     throw err;
+//   }
+// }
+
+export async function exportAllTablesToSql(outputDir = './exports/sql') {
+  try {
+    const tables = await getAllTablesSafe();
+
+    // 🔹 Resolve absolute path
+    const absDir = path.isAbsolute(outputDir)
+      ? outputDir
+      : path.join(process.cwd(), outputDir);
+
+    // 🔹 Interactive overwrite
+    if (fsSync.existsSync(absDir)) {
+      const overwrite = readlineSync.keyInYNStrict(
+        ` Folder exists: ${absDir}\nOverwrite contents?`
+      );
+
+      if (!overwrite) {
+        console.log(' Export cancelled.');
+        return;
+      }
+
+      fsSync.rmSync(absDir, { recursive: true, force: true });
+    }
+
+    fsSync.mkdirSync(absDir, { recursive: true });
+
+    console.log(`\ Exporting ${tables.length} tables → SQL\n`);
+
+    let index = 1;
+    let totalRows = 0;
+
+    for (const table of tables) {
+      const filePath = path.join(absDir, `${table}.sql`);
+
+      // 🔹 export SQL
+      await exportTableToSql(table, filePath);
+
+      // 🔹 get row count (informative)
+      let count = 0;
+      try {
+        count = await countRows(table);
+      } catch {
+        count = 0;
+      }
+
+      totalRows += count;
+
+      console.log(
+        ` [${index}/${tables.length}] ${table} → ${count} rows`
+      );
+
+      index++;
+    }
+
+    // 🔹 ZIP backup
+    try {
+      const zipPath = `${absDir}.zip`;
+
+      const { execSync } = await import('child_process');
+      const os = (await import('os')).default;
+
+      if (os.platform() === 'win32') {
+        execSync(
+          `powershell Compress-Archive -Path "${absDir}\\*" -DestinationPath "${zipPath}" -Force`
+        );
+      } else {
+        execSync(`zip -r "${zipPath}" "${absDir}"`);
+      }
+
+      console.log(` ZIP created → ${zipPath}`);
+    } catch (zipErr) {
+      console.warn(' ZIP failed (zip not installed)');
+    }
+
+    logSuccess(
+      `SQL export complete → ${absDir} | Tables: ${tables.length} | Rows: ${totalRows}`
+    );
+
+  } catch (err) {
+    logError('exportAllTablesToSql failed', err);
     throw err;
   }
 }

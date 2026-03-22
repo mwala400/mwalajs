@@ -589,3 +589,166 @@ Click below to download zip file mwalajs framework:
 
 
 Click below to download rar file mwalajs framework :
+
+
+
+${bright}╔════════════════════════════════════════════════════╗${reset}
+${bright}║             MwalaJS CLI v${pkg.version}            ║${reset}
+${bright}╚════════════════════════════════════════════════════╝${reset}
+
+${cyan}
+
+███╗   ███╗ ██╗    ██╗ █████╗ ██╗      █████╗        ██╗ ███████╗
+████╗ ████║ ██║    ██║██╔══██╗██║     ██╔══██╗       ██║██╔════╝
+██╔████╔██║ ██║ █╗ ██║███████║██║     ███████║       ██║███████╗
+██║╚██╔╝██║ ██║███╗██║██╔══██║██║     ██╔══██║  ██   ██║╚════██║
+██║ ╚═╝ ██║ ╚███╔███╔╝██║  ██║███████╗██║  ██║  ╚█████╔╝███████║
+╚═╝     ╚═╝  ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚════╝ ╚══════╝
+
+${reset}
+
+${bright}MwalaJS CLI v${pkg.version}${reset}
+${gray}Build • Automate • Deploy • Learn • Scale${reset}
+
+${line}
+
+${boxTop}
+${bright}║               CORE COMMANDS                                ║${reset}
+${boxBot}
+
+  ${yellow}mwala -v | --version${reset}     Show version
+  ${yellow}mwala help | h${reset}           Show this help menu
+  ${yellow}mwala init${reset}               Initialize a new project
+  ${yellow}mwala serve${reset}              Run app locally
+
+${line}
+
+${boxTop}
+${bright}║             PROJECT SCAFFOLDING (🏗️)                      ║${reset}
+${boxBot}
+
+  ${green}mwala create-project${reset}
+  ${green}mwala generate model${reset}      <name>
+  ${green}mwala generate controller${reset} <name>
+  ${green}mwala generate route${reset}      <name>
+  ${green}mwala generate view${reset}       <name>
+  ${green}mwala generate middleware${reset} <name>
+
+${line}
+
+${boxTop}
+${bright}║                  DATABASE CORE (🗄️)                        ║${reset}
+${boxBot}
+
+  ${blue}mwala create-db${reset}
+  ${blue}mwala db:config${reset}
+
+  ${gray}→ Tables:${reset}
+    ${blue}mwala db:table list${reset}
+    ${blue}mwala db:table create${reset} <name>
+    ${blue}mwala db:table drop${reset}   <name>
+    ${blue}mwala db:table rename${reset} <old> <new>
+    ${blue}mwala db:table copy${reset}   <src> <dest>
+
+${line}
+
+${boxTop}
+${bright}║               MIGRATION SYSTEM                         ║${reset}
+${boxBot}
+
+  ${magenta}mwala migrate all${reset}
+  ${magenta}mwala rollback last${reset}
+  ${magenta}mwala rollback all${reset}    ${red}⚠ destructive operation${reset}
+
+${line}
+
+${boxTop}
+${bright}║                   DATA FLOW (📦)                           ║${reset}
+${boxBot}
+
+  ${cyan}Import:${reset}
+    ${cyan}mwala db:import${reset} users.csv users
+    ${cyan}mwala db:import${reset} backup.sql users
+
+  ${cyan}Export:${reset}
+    ${cyan}mwala db:export${reset} users users.json
+
+  ${gray}Tip:${reset} CSV/JSON = data only • SQL = structure + data
+
+${line}
+
+${boxTop}
+${bright}║                BACKUP & SEEDING                        ║${reset}
+${boxBot}
+
+  ${red}mwala db:seed${reset} <file.js>
+  ${red}mwala db:backup${reset} [custom-name]
+  ${red}mwala db:restore${reset} <file.sql>
+
+  Example:
+    ${red}mwala db:backup${reset} prod-2026-03-21
+
+${line}
+
+${boxTop}
+${bright}║               MAINTENANCE TOOLS (🛠)                       ║${reset}
+${boxBot}
+
+  ${yellow}mwala db:size${reset}
+  ${yellow}mwala db:indexes${reset} <table>
+  ${yellow}mwala db:analyze${reset} <table>
+  ${yellow}mwala db:vacuum${reset}
+  ${yellow}mwala db:connections${reset}
+  ${yellow}mwala db:kill-connections${reset}   ${red}⚠ admin only${reset}
+
+  
+${line}
+
+${line}
+
+${boxTop}
+${bright}║           🧠 DB FORMATTER ENGINE (NEW CORE)               ║${reset}
+${boxBot}
+
+  ${green}mwala db:merge-separate <file.sql>${reset}
+     → Splits CREATE vs INSERT
+
+  ${green}mwala db:sql-to-mongo <file.sql>${reset}
+     → SQL → MongoDB JSON
+
+  ${green}mwala db:mongo-to-sql <file.json>${reset}
+     → MongoDB → SQL INSERTS
+
+  ${green}mwala db:convert <mysql|mongo|postgres> <file>${reset}
+     → Cross-database migration
+
+  ${green}mwala db:normalize xampp <file.sql>${reset}
+     → Fix broken XAMPP dumps
+
+${line}
+
+${boxTop}
+${bright}║                  DEVELOPER NOTES                        ║${reset}
+${boxBot}
+
+  • Use meaningful backup names (date + description)
+  • Avoid rollback all in production
+  • Prefer SQL for full migrations
+  • Use CSV/JSON for fast data sync
+
+  ||for formating db file engine commands:
+
+  • Always backup before conversion
+  • Use normalize for XAMPP dumps
+  • Use merge-separate for migration prep
+  • SQL = structure + data pipeline
+${line}
+
+${bright} MWALAJS — Control. Simplicity. Power.${reset}
+${gray}“Built for developers who hate complexity”${reset}
+
+${line}
+
+${green}Happy Coding — Build like a pro, no stress!${reset}
+
+  `

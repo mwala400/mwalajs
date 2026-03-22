@@ -291,6 +291,61 @@ export const killConnections = async () => {
 };
 
 
+export async function getFullDatabaseInfo() {
+  try {
+    const dbName = sequelize.getDatabaseName(); //  FIX
 
+    console.log('\n DATABASE INSPECTOR');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`🗄 Database: ${dbName}\n`);
 
+    const [tables] = await sequelize.query(`
+      SELECT TABLE_NAME, ENGINE, TABLE_ROWS, 
+             ROUND((DATA_LENGTH + INDEX_LENGTH)/1024/1024, 2) AS SIZE_MB,
+             CREATE_TIME, UPDATE_TIME
+      FROM information_schema.TABLES
+      WHERE TABLE_SCHEMA = '${dbName}'
+    `);
 
+    let totalSize = 0;
+    let totalRows = 0;
+
+    for (const table of tables) {
+      totalSize += Number(table.SIZE_MB || 0);
+      totalRows += Number(table.TABLE_ROWS || 0);
+
+      console.log(`📦 TABLE: ${table.TABLE_NAME}`);
+      console.log(`   • Engine: ${table.ENGINE}`);
+      console.log(`   • Rows: ${table.TABLE_ROWS}`);
+      console.log(`   • Size: ${table.SIZE_MB} MB`);
+      console.log(`   • Created: ${table.CREATE_TIME}`);
+      console.log(`   • Updated: ${table.UPDATE_TIME}`);
+
+      const [indexes] = await sequelize.query(`
+        SHOW INDEX FROM \`${table.TABLE_NAME}\`
+      `);
+
+      if (indexes.length) {
+        console.log(`   • Indexes:`);
+        indexes.forEach(idx => {
+          console.log(`     - ${idx.Key_name} (${idx.Column_name})`);
+        });
+      }
+
+      console.log('--------------------------------------');
+    }
+
+    console.log('\n SUMMARY');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`Total Tables : ${tables.length}`);
+    console.log(`Total Rows   : ${totalRows}`);
+    console.log(`Total Size   : ${totalSize.toFixed(2)} MB`);
+
+    console.log('\n Database inspection complete\n');
+
+  } catch (err) {
+    console.error(' Failed to get database info:', err.message);
+    if (err.stack) console.error(err.stack);
+    throw err;
+  }
+}

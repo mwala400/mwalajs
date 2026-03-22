@@ -1,0 +1,9 @@
+{
+  "provider": "email",
+  "type": "mysql",
+  "dbName": "mwala",
+  "interval": 30000,
+  "outputDir": "C:\\Users\\hekim\\OneDrive\\Desktop\\MWALAOFFICIAL\\mwalajs\\backups\\mwala",
+  "createdAt": "2026-03-22T14:56:17.374Z",
+  "encrypted": true
+}

@@ -26,9 +26,9 @@ const colors = {
   cyan: '\x1b[36m',
 };
 
-const error = (msg) => console.error(`${colors.red}❌ ${msg}${colors.reset}`);
+const error = (msg) => console.error(`${colors.red} ${msg}${colors.reset}`);
 const success = (msg) => console.log(`${colors.green}✅ ${msg}${colors.reset}`);
-const warn = (msg) => console.warn(`${colors.yellow}⚠️  ${msg}${colors.reset}`);
+const warn = (msg) => console.warn(`${colors.yellow}  ${msg}${colors.reset}`);
 const info = (msg) => console.log(`${colors.cyan}${msg}${colors.reset}`);
 
 const __filename = fileURLToPath(import.meta.url);
@@ -108,9 +108,8 @@ try {
   };
 
   // ← Ongeza hizi mbili kwa debug
-console.log('Functions zilizopo kutoka dbUtils:');
-console.log(Object.keys(imports).filter(key => key.includes('export') || key.includes('Export')));
-
+// console.log('Functions zilizopo kutoka dbUtils:');
+// console.log(Object.keys(imports).filter(key => key.includes('export') || key.includes('Export')));
 
   // 🔥 IMPORTANT FIX
 ({
@@ -602,7 +601,7 @@ export { router as ${name}Route };`;
         if (args[1] === 'last') {
           await runSafe(rollbackLastMigration, 'Last migration rolled back');
         } else if (args[1] === 'all') {
-          if (readlineSync.keyInYNStrict('⚠️  Really rollback ALL migrations? This is dangerous!')) {
+          if (readlineSync.keyInYNStrict('  Really rollback ALL migrations? This is dangerous!')) {
             await runSafe(dropAllTables, 'All tables dropped (full rollback)');
           }
         } else {
@@ -659,31 +658,67 @@ case 'db:restore': {
       //   await runSafe(() => restoreDatabase(args[1]), 'Database restored');
       //   break;
 
-   case 'db:export': {
-  if (!args[1] || !args[2]) {
-    return error('Usage: db:export <table> <file.(csv|json|sql)>');
+  case 'db:export-all': {
+  const format = args[1]?.toLowerCase();
+
+  if (!format) {
+    return error('Usage: mwala db:export-all <csv|json|sql|all>');
   }
 
-  const table = args[1];
-  const file = args[2];
-  const ext = path.extname(file).toLowerCase();
+  const tables = await imports.listTables();
 
-if (ext === '.csv') {
-    await runSafe(() => imports.exportTableToCsv(table, file), 'Table exported to CSV');
-  } 
-  else if (ext === '.json') {
-    await runSafe(() => imports.exportTableToJson(table, file), 'Table exported to JSON');
-  } 
-  else if (ext === '.sql') {
-    await runSafe(() => imports.exportTableToSql(table, file), 'Table exported to SQL');
-  }
-  else {
-    error('Unsupported file type. Use .csv, .json, or .sql');
+  // 🔥 create export folder with date
+  const baseDir = path.join(
+    process.cwd(),
+    'exports',
+    new Date().toISOString().split('T')[0]
+  );
+
+  fs.mkdirSync(baseDir, { recursive: true });
+
+  console.log(`\n📁 Export folder: ${baseDir}\n`);
+  console.log(`📊 Found ${tables.length} tables\n`);
+
+  const runExport = async (type) => {
+    const fn = {
+      csv: imports.exportTableToCsv,
+      json: imports.exportTableToJson,
+      sql: imports.exportTableToSql,
+    }[type];
+
+    for (const table of tables) {
+      const filePath = path.join(baseDir, `${table}.${type}`);
+
+      await fn(table, filePath);
+
+      console.log(`📦 ${table} → ${filePath}`);
+    }
+  };
+
+  if (format === 'all') {
+    await runExport('csv');
+    await runExport('json');
+    await runExport('sql');
+  } else {
+    await runExport(format);
   }
 
+  // 🔥 AUTO ZIP
+  try {
+    const zipPath = `${baseDir}.zip`;
+
+    execSync(
+      `powershell Compress-Archive -Path "${baseDir}\\*" -DestinationPath "${zipPath}" -Force`
+    );
+
+    console.log(`📦 ZIP created → ${zipPath}`);
+  } catch {
+    warn('ZIP failed');
+  }
+
+  success(`Export completed → ${baseDir}`);
   break;
 }
-
 
     case 'db:import': {
   if (!args[1] || !args[2]) {
@@ -714,6 +749,13 @@ if (ext === '.csv') {
   await runSafe(() => imports.showDatabaseSize(), 'Database size shown');
   break;
 
+  case 'db:info':
+  await runSafe(
+    () => imports.getFullDatabaseInfo(),
+    'Database info displayed'
+  );
+  break;
+
 case 'db:indexes':
   if (!args[1]) return error('Table name required: mwala db:indexes <table>');
   await runSafe(() => imports.listIndexes(args[1]), `Indexes for ${args[1]}`);
@@ -733,19 +775,19 @@ case 'db:connections':
   break;
 
 case 'db:kill-connections':
-  if (readlineSync.keyInYNStrict('⚠️ Kill ALL other database connections? (hatari!)')) {
+  if (readlineSync.keyInYNStrict(' Kill ALL other database connections? (hatari!)')) {
     await runSafe(() => imports.killConnections(), 'Other connections killed');
   }
   break;
 
       // case 'db:kill-connections':
-      //   if (readlineSync.keyInYNStrict('⚠️  Kill ALL other database connections?')) {
+      //   if (readlineSync.keyInYNStrict('  Kill ALL other database connections?')) {
       //     await runSafe(killConnections, 'Other connections killed');
       //   }
       //   break;
 
 case 'db:drop-all-tables':
-  if (readlineSync.keyInYNStrict('⚠️⚠️  THIS WILL DROP **ALL** TABLES! Continue?')) {
+  if (readlineSync.keyInYNStrict('  THIS WILL DROP **ALL** TABLES! Continue?')) {
     await runSafe(dropAllTables, 'All tables dropped (irreversible!)');
   }
   break;
@@ -853,6 +895,132 @@ case 'db:convert': {
       success(`Normalized file: ${out}`);
       break;
     }
+
+//mwala.js autodb-backup-email start
+// ... inside your command parser (mwala.js)
+case 'autodb-backup':
+case 'autobackup': {
+  const action = args[1]?.toLowerCase();
+
+  let mod;
+  try {
+    mod = await import('../config/autodb-backup-email.mjs');
+  } catch (e) {
+    console.error(' Failed to load backup module:', e.message);
+    process.exit(1);
+  }
+
+  switch (action) {
+
+    case 'init':
+      await mod.init();
+      break;
+
+    case 'start':
+      console.log('\
+         MWALA Auto Backup Starting...\n');
+
+      console.log(' Mode: FOREGROUND (CLI)');
+      console.log('  This runs until Ctrl+C\n');
+
+      console.log(' Recommended PM2 (PRODUCTION):');
+      console.log('----------------------------------------');
+      console.log(`pm2 start ${process.argv[1]} --name mwala-db-autobackup -- autodb-backup start`);
+      console.log('or');
+      console.log('pm2 start mwala --name mwala-db-autobackup -- autodb-backup start');
+      console.log('pm2 save');
+      console.log('pm2 startup\n');
+
+      await mod.startAutoBackup();
+      break;
+
+    case 'stop':
+      console.log(' Stopping auto-backup...');
+      await mod.stopAutoBackup?.();
+      break;
+
+    case 'status':
+      console.log('📊 Backup Status:');
+      await mod.backupStatus?.();
+      break;
+
+    case 'logs':
+      console.log('📜 Backup Logs:');
+      await mod.backupLogs?.();
+      break;
+
+    case 'decrypt': {
+      const file = args[2];
+      if (!file) {
+        console.log('Usage: mwala autodb-backup decrypt <file.enc>');
+        return;
+      }
+      await mod.decryptFile(file);
+      break;
+    }
+
+    case 'decrypt:folder': {
+      const folder = args[2];
+      if (!folder) {
+        console.log('Usage: mwala autodb-backup decrypt:folder <folder>');
+        return;
+      }
+      await mod.decryptFolder(folder);
+      break;
+    }
+
+    default:
+      console.log(`
+╔════════════════════════════════════╗
+║ MWALA AUTO DATABASE BACKUP SYSTEM  ║
+╚════════════════════════════════════╝
+
+USAGE:
+
+  ▶ INIT SETUP
+    mwala autodb-backup init
+
+  ▶ RUN FOREGROUND (DEV)
+    mwala autodb-backup start
+
+  ▶ STOP
+    mwala autodb-backup stop
+
+  ▶ STATUS
+    mwala autodb-backup status
+
+  ▶ LOGS
+    mwala autodb-backup logs
+
+  ▶ DECRYPT FILE
+    mwala autodb-backup decrypt <file.enc>
+
+  ▶ DECRYPT FOLDER
+    mwala autodb-backup decrypt:folder <dir>
+
+────────────────────────────────────
+
+ PRODUCTION (PM2 BEST PRACTICE)
+
+  ✔ LOCAL:
+    pm2 start bin/mwala.mjs --name mwala-db-autobackup -- autodb-backup start
+
+  ✔ GLOBAL CLI:
+    pm2 start mwala --name mwala-db-autobackup -- autodb-backup start
+
+  ✔ SAVE:
+    pm2 save
+
+  ✔ AUTO START:
+    pm2 startup
+
+────────────────────────────────────
+📁 Logs: mwala-autobackup-live.log
+      `);
+  }
+
+  break;
+}
 
     default:
       error(`Unknown command: ${command}`);

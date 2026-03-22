@@ -16,7 +16,7 @@ const { Client } = pkg;
 const backupEnvFile = () => {
   try {
     if (!fs.existsSync('.env')) {
-      console.log(' ⚠️ No .env file found to backup.');
+      console.log('  No .env file found to backup.');
       return;
     }
 
@@ -28,9 +28,9 @@ const backupEnvFile = () => {
 
     fs.copyFileSync('.env', backupName);
 
-    console.log(` 📦 Backup created: ${backupName}`);
+    console.log(`  Backup created: ${backupName}`);
   } catch (error) {
-    console.error(' ❌ Failed to create .env backup:', error.message);
+    console.error('  Failed to create .env backup:', error.message);
   }
 };
 
@@ -40,9 +40,9 @@ const backupEnvFile = () => {
 const resetEnvFile = () => {
   try {
     fs.writeFileSync('.env', '', 'utf8');
-    console.log(' 🧹 Cleared .env file.');
+    console.log('  Cleared .env file.');
   } catch (error) {
-    console.error(' ❌ Failed to clear .env file:', error.message);
+    console.error('  Failed to clear .env file:', error.message);
   }
 };
 
@@ -62,10 +62,10 @@ const writeToEnv = (data) => {
 ----------------------------------------------------------- */
 export const getDbConnection = async () => {
 
-  // 🔥 FIRST CREATE BACKUP
+  //  FIRST CREATE BACKUP
   backupEnvFile();
 
-  // 🔥 THEN CLEAR OLD ENV
+  //  THEN CLEAR OLD ENV
   resetEnvFile();
 
   // Reload environment
@@ -92,13 +92,13 @@ export const getDbConnection = async () => {
       dbType = supportedDbTypes[dbType];
       break;
     } else {
-      console.log(' ❌ Invalid database type. Try again.');
+      console.log('  Invalid database type. Try again.');
     }
   }
 
   const dbName = readlineSync.question('Enter the database name: ').trim();
   if (!dbName) {
-    console.log(' ❌ Database name cannot be empty.');
+    console.log('  Database name cannot be empty.');
     return;
   }
 
@@ -198,7 +198,7 @@ export const getDbConnection = async () => {
     }
 
   } catch (error) {
-    console.error(` ❌ Failed to create database: ${error.message}`);
+    console.error(`  Failed to create database: ${error.message}`);
     return;
   }
 
