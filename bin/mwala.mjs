@@ -262,9 +262,14 @@ ${boxBot}
   ${cyan}Import:${reset}
     ${cyan}mwala db:import${reset} users.csv users
     ${cyan}mwala db:import${reset} backup.sql users
+     ${cyan}mwala db:import${reset} backup.json users
+
+${line}
 
   ${cyan}Export:${reset}
     ${cyan}mwala db:export${reset} users users.json
+    ${cyan}mwala db:export${reset} users users.csv
+    ${cyan}mwala db:export${reset} users users.sql
 
   ${gray}Tip:${reset} CSV/JSON = data only • SQL = structure + data
 
@@ -300,7 +305,7 @@ ${line}
 ${line}
 
 ${boxTop}
-${bright}║           🧠 DB FORMATTER ENGINE (NEW CORE)               ║${reset}
+${bright}║            DB FORMATTER ENGINE (NEW CORE)               ║${reset}
 ${boxBot}
 
   ${green}mwala db:merge-separate <file.sql>${reset}
@@ -319,6 +324,63 @@ ${boxBot}
      → Fix broken XAMPP dumps
 
 ${line}
+
+${line}
+
+${boxTop}
+${bright}║            AUTO SYSTEM (⚡ PM2 + CRON)                    ║${reset}
+${boxBot}
+
+  ${red}mwala autodb-backup init${reset}
+     → Setup backup config (email, interval, encryption)
+
+  ${red}mwala autodb-backup start${reset}
+     → Run backup in foreground (dev mode)
+
+  ${red}mwala autodb-backup stop${reset}
+     → Stop running backup process
+
+  ${red}mwala autodb-backup status${reset}
+     → Show backup system status
+
+  ${red}mwala autodb-backup logs${reset}
+     → View backup logs
+
+  ${red}mwala autodb-backup decrypt <file.enc>${reset}
+     → Decrypt single backup file
+
+  ${red}mwala autodb-backup decrypt:folder <dir>${reset}
+     → Decrypt all backups in folder
+
+${line}
+
+${boxTop}
+${bright}║              PM2 PRODUCTION COMMANDS                    ║${reset}
+${boxBot}
+
+  ${green}pm2 start mwala --name mwala-db-autobackup -- autodb-backup start${reset}
+     → Start in production (GLOBAL CLI)
+
+  ${green}pm2 start bin/mwala.mjs --name mwala-db-autobackup -- autodb-backup start${reset}
+     → Start in production (LOCAL PROJECT)
+
+  ${green}pm2 save${reset}
+     → Save processes for reboot auto-start
+
+  ${green}pm2 startup${reset}
+     → Enable system service (boot auto-start)
+
+  ${green}pm2 logs mwala-db-autobackup${reset}
+     → Live monitoring logs
+
+  ${green}pm2 restart mwala-db-autobackup${reset}
+     → Restart backup service
+
+  ${green}pm2 stop mwala-db-autobackup${reset}
+     → Stop service
+
+${line}
+
 
 ${boxTop}
 ${bright}║                  DEVELOPER NOTES                        ║${reset}
