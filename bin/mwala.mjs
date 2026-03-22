@@ -386,6 +386,15 @@ ${boxTop}
 ${bright}║                  DEVELOPER NOTES                        ║${reset}
 ${boxBot}
 
+
+Here are 5 clean help-page descriptions with link included:
+
+Configure your Gmail App Password for secure email automation and backups: https://myaccount.google.com/apppasswords
+Enable 2-Step Verification to unlock secure app access for your Google account: https://myaccount.google.com/security
+Use MwalaJS Auto Backup system to schedule and manage database backups easily via CLI commands.
+Learn how to run MwalaJS in production using PM2 for stable background processes and auto-restart support.
+Access full MwalaJS documentation and updates for advanced CLI, database tools, and automation features: https://github.com/mwala400/mwalajs
+
   • Use meaningful backup names (date + description)
   • Avoid rollback all in production
   • Prefer SQL for full migrations
