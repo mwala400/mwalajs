@@ -656,7 +656,7 @@ export async function importCsvToTable(
     await transaction.commit();
 
     logSuccess(
-      `CSV imported → ${tableName} | ✅ ${successCount} rows |  ${failCount} skipped`
+      `CSV imported → ${tableName} |  ${successCount} rows |  ${failCount} skipped`
     );
 
   } catch (err) {
@@ -720,7 +720,7 @@ export async function importJsonToTable(
     await transaction.commit();
 
     logSuccess(
-      `JSON imported → ${tableName} | ✅ ${successCount} rows |  ${failCount} skipped`
+      `JSON imported → ${tableName} |  ${successCount} rows |  ${failCount} skipped`
     );
 
   } catch (err) {
@@ -1303,6 +1303,54 @@ export async function exportAllTablesToSql(outputDir = './exports/sql') {
   }
 }
 
+
+
+
+////impoting all added
+// Function ya msaada kutafuta files kwenye folder
+async function getFilesFromDir(dir, extension) {
+  if (!fsSync.existsSync(dir)) throw new Error(`Folder halipo: ${dir}`);
+  const files = fsSync.readdirSync(dir);
+  return files
+    .filter(f => f.endsWith(extension))
+    .map(f => ({
+      fullPath: path.join(dir, f),
+      tableName: path.basename(f, extension) // Inachukua jina la file kama jina la table
+    }));
+}
+
+export async function importAllFromFolder(folderPath, type = 'all') {
+  const absPath = path.isAbsolute(folderPath) ? folderPath : path.join(process.cwd(), folderPath);
+  
+  // Tunaamua ni aina gani ya files tufanye kazi nazo
+  const typesToProcess = type === 'all' ? ['sql', 'csv', 'json'] : [type];
+  
+  console.log(`\n Starting Bulk Import from: ${absPath}\n`);
+
+  for (const ext of typesToProcess) {
+    const files = await getFilesFromDir(absPath, `.${ext}`);
+    if (files.length === 0) continue;
+
+    console.log(`\n Processing ${ext.toUpperCase()} files (${files.length})...`);
+
+    for (const file of files) {
+      try {
+        if (ext === 'sql') {
+          await importSqlToTable(file.fullPath);
+        } else if (ext === 'csv') {
+          await importCsvToTable(file.fullPath, file.tableName);
+        } else if (ext === 'json') {
+          await importJsonToTable(file.fullPath, file.tableName);
+        }
+        console.log(` Imported: ${file.tableName}.${ext}`);
+      } catch (err) {
+        console.error(` Failed: ${file.tableName}.${ext} -> ${err.message}`);
+      }
+    }
+  }
+  logSuccess('Bulk Import process completed!');
+}
+
 // Export everything
 export default {
   listTables,
@@ -1326,5 +1374,6 @@ export default {
   backupDatabase,
   restoreDatabase,
   seedDatabase,
+  importAllFromFolder,
   // ... add more as needed
 };
